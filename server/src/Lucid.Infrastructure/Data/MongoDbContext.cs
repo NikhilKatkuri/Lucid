@@ -88,8 +88,8 @@ public class MongoDbContext
         await auditCollection.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.AuditEvent>(auditUserKeys));
 
         var revoked = GetCollection<Domain.Entities.RevokedToken>("revokedTokens");
-        await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
-            Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.Jti), new CreateIndexOptions { Unique = true }));
+        // Jti is mapped as [BsonId] (_id), so uniqueness is already enforced by MongoDB.
+        // Creating an explicit unique index on _id is rejected by the server.
         await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
             Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.ExpiresAt), new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }));
     }
