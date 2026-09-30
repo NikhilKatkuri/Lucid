@@ -25,7 +25,7 @@ export function AppShell() {
   const { user, logout } = useAuth()
   const { orgs, activeOrg, activeTenant, setActiveTenant } = useTenant()
   const navigate = useNavigate()
-  const [navOpen, setNavOpen] = useState(false)
+  const [navOpen, setNavOpen] = useState(true)
   const [switching, setSwitching] = useState(false)
 
   const tenantAccent = activeTenant ? accentFor(activeTenant.tenantId) : 'blue'
@@ -34,7 +34,6 @@ export function AppShell() {
     if (tenantId === activeTenant?.tenantId) return
     setSwitching(true)
     setActiveTenant(tenantId)
-    // Brief top progress bar so the switch is perceptible (DESIGN §8).
     await new Promise((resolve) => setTimeout(resolve, 450))
     setSwitching(false)
   }
@@ -66,13 +65,17 @@ export function AppShell() {
   ]
 
   return (
-    <div className="shell">
+    <div className={['shell', navOpen ? 'is-nav-open' : 'is-nav-closed'].join(' ')}>
       <header className="shell__bar">
         <div className="shell__bar-left">
           <IconButton
-            label="Open navigation"
+            label={navOpen ? 'Close navigation' : 'Open navigation'}
             className="shell__menu-btn"
-            onClick={() => setNavOpen((value) => !value)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setNavOpen((value) => !value);
+            }}
           >
             menu
           </IconButton>
@@ -155,10 +158,10 @@ export function AppShell() {
 
       <div className="shell__body">
         <nav
-          className={['shell__nav', navOpen ? 'is-open' : ''].filter(Boolean).join(' ')}
+          className={['shell__nav', navOpen ? 'is-open' : 'is-closed'].join(' ')}
           aria-label="Main navigation"
         >
-          <p className="shell__nav-label">Workspace</p>
+          <p className="shell__nav-label">{navOpen ? 'Workspace' : ''}</p>
           <ul className="shell__nav-list">
             {NAV_ITEMS.map((item) => (
               <li key={item.to}>
@@ -169,18 +172,19 @@ export function AppShell() {
                       .filter(Boolean)
                       .join(' ')
                   }
-                  onClick={() => setNavOpen(false)}
+                  title={!navOpen ? item.label : undefined}
                 >
                   {({ isActive }) => (
                     <>
                       <Icon name={item.icon} filled={isActive} size={22} />
-                      <span>{item.label}</span>
+                      <span className="shell__nav-text">{item.label}</span>
                     </>
                   )}
                 </NavLink>
               </li>
             ))}
           </ul>
+
 
           <div className="shell__nav-foot">
             <span
