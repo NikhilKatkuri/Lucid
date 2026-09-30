@@ -13,6 +13,7 @@ export interface Product {
   supplierCost: number
   imageInitial: string
   imageUrl?: string
+  imageKey?: string | null
   version?: number
   createdAt: string
   updatedAt: string
