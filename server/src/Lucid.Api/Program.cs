@@ -8,6 +8,7 @@ using Lucid.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
@@ -24,6 +25,7 @@ builder.Services.Configure<TenantOptions>(builder.Configuration.GetSection(Tenan
 
 // Infrastructure
 builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddSingleton(sp => new S3ClientPair(sp.GetRequiredService<IOptions<S3Options>>().Value));
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

@@ -26,6 +26,8 @@ export interface Product {
   price: number
   supplierCost: number
   imageInitial: string
+  imageUrl?: string
+  imageKey?: string | null
   createdAt: string
   updatedAt: string
 }

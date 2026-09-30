@@ -13,6 +13,7 @@ services:
       - S3__Bucket=lucid-files
       - S3__Region=us-east-1
       - S3__Endpoint=http://localstack:4566
+      - S3__PublicEndpoint=http://localhost:4566
       - S3__AccessKey=test
       - S3__SecretKey=test
       - Jwt__Key=${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in server/.env}

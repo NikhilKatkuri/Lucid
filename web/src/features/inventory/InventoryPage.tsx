@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTenant } from '../tenant/TenantProvider'
 import { useProducts, useCreateProduct } from './hooks'
 import { useDebounce } from '../../shared/hooks/useDebounce'
@@ -6,13 +6,17 @@ import { useUrlState } from '../../shared/hooks/useUrlState'
 import { usePermission } from '../../shared/hooks/usePermission'
 import { StatusChip } from './StatusChip'
 import { ProductSheet } from './ProductSheet'
-import { Icon } from '../../shared/components'
+import { Icon, useSnackbar } from '../../shared/components'
 import { formatCurrency, formatDate } from '../../shared/utils/format'
 import type { Product } from './types'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import './inventory.css'
+import { env } from '../../shared/config/env'
+import { uploadProductImage } from '../../shared/api/inventory'
+import { queryKeys } from '../../shared/api/queryKeys'
 
 const CATEGORIES = ['Accessories', 'Electronics', 'Furniture', 'Equipment', 'Wearables', 'Packaging', 'Shelving', 'Other']
 
@@ -30,37 +34,71 @@ type CreateFormValues = z.infer<typeof createSchema>
 
 function AddProductDialog({ tenantId, onClose }: { tenantId: string; onClose: () => void }) {
   const { mutateAsync, isPending } = useCreateProduct(tenantId)
+  const queryClient = useQueryClient()
+  const { show } = useSnackbar()
   const { register, handleSubmit, formState: { errors } } = useForm<CreateFormValues>({
     resolver: zodResolver(createSchema),
     defaultValues: { quantity: 0, reorderLevel: 5, price: 0, supplierCost: 0 },
   })
 
   const [imageError, setImageError] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>()
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+
+  useEffect(() => {
+    if (!imageFile) { setImagePreview(undefined); return }
+    const preview = URL.createObjectURL(imageFile)
+    setImagePreview(preview)
+    return () => URL.revokeObjectURL(preview)
+  }, [imageFile])
 
   const onSubmit = async (data: CreateFormValues) => {
-    // Basic mock image validation handled by onChange, but we could also do it here if we controlled the file state
-    await mutateAsync({
-      name: data.name,
-      sku: data.sku,
-      category: data.category,
-      description: data.description ?? '',
-      quantity: data.quantity,
-      reorderLevel: data.reorderLevel,
-      price: data.price,
-      supplierCost: data.supplierCost,
-    })
-    onClose()
+    if (imageFile && env.VITE_USE_MOCK) {
+      setImageError('Product image upload requires API mode. Set VITE_USE_MOCK=false.')
+      return
+    }
+    try {
+      const product = await mutateAsync({
+        name: data.name, sku: data.sku, category: data.category,
+        description: data.description ?? '', quantity: data.quantity,
+        reorderLevel: data.reorderLevel, price: data.price, supplierCost: data.supplierCost,
+      })
+      if (imageFile) {
+        setIsUploadingImage(true)
+        try {
+          await uploadProductImage(product.id, imageFile)
+          await queryClient.invalidateQueries({ queryKey: queryKeys.products(tenantId) })
+        } catch (error) {
+          show(`Product created, but its image could not be uploaded: ${error instanceof Error ? error.message : 'upload failed'}`, { variant: 'error' })
+        } finally {
+          setIsUploadingImage(false)
+        }
+      }
+      onClose()
+    } catch (error) {
+      setImageError(error instanceof Error ? error.message : 'Unable to create product.')
+    }
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     setImageError('')
     if (file) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setImageError('Choose a JPEG, PNG, or WebP image')
+        e.target.value = ''
+        setImageFile(null)
+        return
+      }
       if (file.size > 2 * 1024 * 1024) {
         setImageError('Image must be less than 2MB')
         e.target.value = ''
+        setImageFile(null)
+        return
       }
-    }
+      setImageFile(file)
+    } else setImageFile(null)
   }
 
   return (
@@ -95,6 +133,7 @@ function AddProductDialog({ tenantId, onClose }: { tenantId: string; onClose: ()
               <div className="field-group">
                 <label className="field-label" htmlFor="p-image">Product Image (Max 2MB)</label>
                 <input id="p-image" type="file" accept="image/jpeg,image/png,image/webp" className={`text-field ${imageError ? 'text-field--error' : ''}`} onChange={handleImageChange} />
+                {imagePreview && <img src={imagePreview} alt="Product preview" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 12, marginTop: 8 }} />}
                 {imageError && <span className="field-error">{imageError}</span>}
               </div>
               <div className="field-group">
@@ -122,8 +161,8 @@ function AddProductDialog({ tenantId, onClose }: { tenantId: string; onClose: ()
         </form>
         <div className="dialog-actions">
           <button type="button" className="btn btn--text" onClick={onClose}>Cancel</button>
-          <button type="submit" form="add-product-form" className="btn btn--primary" disabled={isPending}>
-            {isPending ? 'Adding…' : 'Add Product'}
+          <button type="submit" form="add-product-form" className="btn btn--primary" disabled={isPending || isUploadingImage}>
+            {isPending ? 'Adding…' : isUploadingImage ? 'Uploading image…' : 'Add Product'}
           </button>
         </div>
       </div>
@@ -254,7 +293,7 @@ export function InventoryPage() {
                 >
                   <td>
                     <div className="product-cell">
-                      <div className="product-avatar">{product.imageInitial}</div>
+                      <div className="product-avatar">{product.imageUrl ? <img src={product.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /> : product.imageInitial}</div>
                       <span className="product-name">{product.name}</span>
                     </div>
                   </td>

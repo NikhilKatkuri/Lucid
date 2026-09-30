@@ -37,7 +37,7 @@ export function ProductSheet({ tenantId, product, onClose }: ProductSheetProps) 
       <aside className="side-sheet" role="dialog" aria-modal="true" aria-label={product.name}>
         {/* Header */}
         <div className="side-sheet-header">
-          <div className="side-sheet-avatar">{product.imageInitial}</div>
+          <div className="side-sheet-avatar">{product.imageUrl ? <img src={product.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /> : product.imageInitial}</div>
           <div className="side-sheet-title-group">
             <h2 className="side-sheet-title">{product.name}</h2>
             <code className="side-sheet-sku">{product.sku}</code>
