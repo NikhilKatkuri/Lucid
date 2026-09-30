@@ -112,26 +112,40 @@
   color: var(--sys-outline);
 }
 
-/* SSO + divider ---------------------------------------------- */
-.auth-sso {
+/* Auth Tabs --------------------------------------------------- */
+.auth-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: var(--sys-surface-container-high);
+  padding: 4px;
+  border-radius: var(--shape-full);
+  gap: 4px;
+  margin-bottom: 4px;
 }
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: var(--sys-on-surface-variant);
-  font-size: 12px;
-  line-height: 16px;
-  text-transform: lowercase;
-}
-.auth-divider__line {
+.auth-tab {
   flex: 1;
-  height: 1px;
-  background: var(--sys-outline-variant);
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--shape-full);
+  background: transparent;
+  color: var(--sys-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--motion-duration) var(--motion-standard),
+    color var(--motion-duration) var(--motion-standard);
 }
+.auth-tab--active {
+  background: var(--sys-surface);
+  color: var(--sys-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.auth-resend__timer {
+  font-size: 13px;
+  color: var(--sys-outline);
+  font-weight: 500;
+}
+
 
 /* Forms ------------------------------------------------------- */
 .auth-form {

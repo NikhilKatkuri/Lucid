@@ -2,21 +2,21 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
-import { Banner, Button, Checkbox, Icon, IconButton, TextField, useSnackbar } from '../../shared/components'
+import { Banner, Button, Checkbox, IconButton, TextField, useSnackbar } from '../../shared/components'
 import { useAuth } from './AuthProvider'
 import { loginSchema } from './schemas'
 import type { LoginInput } from './schemas'
-import { GoogleMark, MicrosoftMark } from './SsoIcons'
 import './auth.css'
 import { env } from '../../shared/config/env'
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, requestCode } = useAuth()
   const navigate = useNavigate()
   const { show } = useSnackbar()
   const [serverError, setServerError] = useState<string | null>(null)
   const [reveal, setReveal] = useState(false)
-  const [ssoPending, setSsoPending] = useState<'google' | 'microsoft' | null>(null)
+  const [mode, setMode] = useState<'password' | 'otp'>('password')
+  const [otpSending, setOtpSending] = useState(false)
 
   const {
     register,
@@ -40,25 +40,25 @@ export function LoginPage() {
     }
   }
 
-  const handleSso = async (provider: 'google' | 'microsoft') => {
-    setServerError(null)
-    setSsoPending(provider)
-    try {
-      await login('demo@acme.com', 'demo1234')
-      show(
-        `${provider === 'google' ? 'Google' : 'Microsoft'} sign-in is mocked in this demo`,
-      )
-      navigate('/choose-tenant', { replace: true })
-    } catch {
-      setServerError('SSO sign-in failed. Please try the form below.')
-    } finally {
-      setSsoPending(null)
-    }
-  }
-
-  const goToOtp = () => {
+  const handleSendOtp = async () => {
     const email = getValues('email')
-    navigate('/login/otp', { state: email ? { email } : undefined })
+    if (!email || !email.includes('@')) {
+      setServerError('Please enter a valid email address to send a code.')
+      return
+    }
+    setServerError(null)
+    setOtpSending(true)
+    try {
+      await requestCode(email)
+      show('One-time code sent to your email', { variant: 'success' })
+      navigate('/login/otp', { state: { email } })
+    } catch (error) {
+      setServerError(
+        error instanceof Error ? error.message : 'Failed to send code. Try again.',
+      )
+    } finally {
+      setOtpSending(false)
+    }
   }
 
   return (
@@ -70,90 +70,101 @@ export function LoginPage() {
         <p className="auth-card__subtitle">Sign in to your workspace</p>
       </div>
 
+      <div className="auth-tabs" role="tablist">
+        {env.VITE_USE_MOCK && <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'password'}
+          className={`auth-tab ${mode === 'password' ? 'auth-tab--active' : ''}`}
+          onClick={() => setMode('password')}
+        >
+          Password
+        </button>}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'otp'}
+          className={`auth-tab ${mode === 'otp' ? 'auth-tab--active' : ''}`}
+          onClick={() => setMode('otp')}
+        >
+          One-Time Code (OTP)
+        </button>
+      </div>
+
       {serverError && (
         <Banner tone="error" onDismiss={() => setServerError(null)}>
           {serverError}
         </Banner>
       )}
 
-      {env.VITE_USE_MOCK && <div className="auth-sso">
-        <Button
-          variant="outlined"
-          fullWidth
-          large
-          loading={ssoPending === 'google'}
-          disabled={ssoPending !== null}
-          startIcon={<GoogleMark />}
-          onClick={() => void handleSso('google')}
-        >
-          Continue with Google
-        </Button>
-        <Button
-          variant="outlined"
-          fullWidth
-          large
-          loading={ssoPending === 'microsoft'}
-          disabled={ssoPending !== null}
-          startIcon={<MicrosoftMark />}
-          onClick={() => void handleSso('microsoft')}
-        >
-          Continue with Microsoft
-        </Button>
-      </div>}
+      {mode === 'password' ? (
+        <form className="auth-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <TextField
+            label="Email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            startIcon="mail"
+            error={errors.email?.message}
+            {...register('email')}
+          />
+          <TextField
+            label="Password"
+            type={reveal ? 'text' : 'password'}
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            startIcon="lock"
+            error={errors.password?.message}
+            endAdornment={
+              <IconButton
+                label={reveal ? 'Hide password' : 'Show password'}
+                size={20}
+                onClick={() => setReveal((value) => !value)}
+              >
+                {reveal ? 'visibility_off' : 'visibility'}
+              </IconButton>
+            }
+            {...register('password')}
+          />
 
-      <div className="auth-divider" aria-hidden="true">
-        <span className="auth-divider__line" />
-        <span className="auth-divider__text">or</span>
-        <span className="auth-divider__line" />
-      </div>
+          <div className="auth-row">
+            <Checkbox label="Remember me" defaultChecked {...register('remember')} />
+            <Link to="/forgot-password" className="auth-link">
+              Forgot password?
+            </Link>
+          </div>
 
-      <form className="auth-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <TextField
-          label="Email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@company.com"
-          startIcon="mail"
-          error={errors.email?.message}
-          {...register('email')}
-        />
-        <TextField
-          label="Password"
-          type={reveal ? 'text' : 'password'}
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          startIcon="lock"
-          error={errors.password?.message}
-          endAdornment={
-            <IconButton
-              label={reveal ? 'Hide password' : 'Show password'}
-              size={20}
-              onClick={() => setReveal((value) => !value)}
-            >
-              {reveal ? 'visibility_off' : 'visibility'}
-            </IconButton>
-          }
-          {...register('password')}
-        />
+          <Button type="submit" variant="filled" fullWidth large loading={isSubmitting}>
+            Sign in
+          </Button>
+        </form>
+      ) : (
+        <div className="auth-form">
+          <TextField
+            label="Email address"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            startIcon="mail"
+            error={errors.email?.message}
+            {...register('email')}
+          />
 
-        <div className="auth-row">
-          <Checkbox label="Remember me" defaultChecked {...register('remember')} />
-          <Link to="/forgot-password" className="auth-link">
-            Forgot password?
-          </Link>
+          <p className="auth-card__subtitle" style={{ textAlign: 'left', margin: '4px 0 8px' }}>
+            We will send a 6-digit verification code to your email.
+          </p>
+
+          <Button
+            variant="filled"
+            fullWidth
+            large
+            loading={otpSending}
+            onClick={() => void handleSendOtp()}
+          >
+            Send One-Time Code
+          </Button>
         </div>
-
-        <Button type="submit" variant="filled" fullWidth large loading={isSubmitting}>
-          Sign in
-        </Button>
-      </form>
-
-      {env.VITE_USE_MOCK && <Button variant="text" fullWidth onClick={goToOtp}>Use a one-time code instead</Button>}
-
-      <p className="auth-hint">
-        <Icon name="info" size={16} />
-        Demo mode — any email with a 6+ character password works.
-      </p>
+      )}
 
       <p className="auth-card__footer">
         Don&apos;t have an account? <Link to="/register">Create account</Link>
