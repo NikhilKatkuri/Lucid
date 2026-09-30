@@ -36,11 +36,15 @@ const PERMISSION_MATRIX: Record<Role, Permission[]> = {
     'file.delete',
   ],
   Staff: [
+    'product.create',
     'product.adjust',
     'transfer.create',
     'file.upload',
   ],
-  Viewer: [],
+  Viewer: [
+    'product.create',
+    'file.upload',
+  ],
 }
 
 export function usePermission(permission: Permission): boolean {
