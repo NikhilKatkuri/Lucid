@@ -2,7 +2,7 @@
 import { useTenant } from '../tenant/TenantProvider'
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../shared/api/queryKeys'
-import { fetchMovements } from '../../mocks/db'
+import { fetchMovements } from '../../shared/api/inventory'
 import { useDebounce } from '../../shared/hooks/useDebounce'
 import { useUrlState } from '../../shared/hooks/useUrlState'
 import { Icon } from '../../shared/components'
@@ -28,7 +28,7 @@ export function MovementsPage() {
 
   const { data: movements, isLoading } = useQuery({
     queryKey: queryKeys.movements(tenantId, { search: debouncedSearch, type }),
-    queryFn: () => fetchMovements(tenantId, {
+      queryFn: () => fetchMovements(tenantId, {
       search: debouncedSearch || undefined,
       type: type || undefined,
     }),

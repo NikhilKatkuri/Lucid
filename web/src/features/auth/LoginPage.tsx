@@ -8,6 +8,7 @@ import { loginSchema } from './schemas'
 import type { LoginInput } from './schemas'
 import { GoogleMark, MicrosoftMark } from './SsoIcons'
 import './auth.css'
+import { env } from '../../shared/config/env'
 
 export function LoginPage() {
   const { login } = useAuth()
@@ -75,7 +76,7 @@ export function LoginPage() {
         </Banner>
       )}
 
-      <div className="auth-sso">
+      {env.VITE_USE_MOCK && <div className="auth-sso">
         <Button
           variant="outlined"
           fullWidth
@@ -98,7 +99,7 @@ export function LoginPage() {
         >
           Continue with Microsoft
         </Button>
-      </div>
+      </div>}
 
       <div className="auth-divider" aria-hidden="true">
         <span className="auth-divider__line" />
@@ -147,9 +148,7 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <Button variant="text" fullWidth onClick={goToOtp}>
-        Use a one-time code instead
-      </Button>
+      {env.VITE_USE_MOCK && <Button variant="text" fullWidth onClick={goToOtp}>Use a one-time code instead</Button>}
 
       <p className="auth-hint">
         <Icon name="info" size={16} />

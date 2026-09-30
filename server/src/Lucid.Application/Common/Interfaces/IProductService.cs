@@ -14,4 +14,5 @@ public interface IProductService
     Task<bool> RestoreAsync(string id, CancellationToken ct = default);
     Task<StockAdjustmentResult> AdjustStockAsync(string productId, AdjustStockRequest request, CancellationToken ct = default);
     Task<List<StockMovement>> GetMovementsAsync(string productId, CancellationToken ct = default);
+    Task<List<StockMovement>> GetTenantMovementsAsync(CancellationToken ct = default);
 }

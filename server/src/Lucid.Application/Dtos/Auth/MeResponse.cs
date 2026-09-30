@@ -22,6 +22,7 @@ public class TenantContextDto
 public class TenantSummaryDto
 {
     public string TenantId { get; set; } = string.Empty;
+    public string OrganizationId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public TenantType Type { get; set; }

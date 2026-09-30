@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  VITE_API_URL: z.string().default('http://localhost:5000/api'),
-  VITE_USE_MOCK: z.string().transform((val) => val === 'true').default('true'),
+  VITE_API_URL: z.string().default('http://localhost:5000/api/v1'),
+  VITE_USE_MOCK: z.string().transform((val) => val === 'true').default('false'),
   VITE_ENABLE_PASSWORD_LOGIN: z.string().transform((val) => val === 'true').default('true'),
-  VITE_ENABLE_GOOGLE_LOGIN: z.string().transform((val) => val === 'true').default('true'),
-  VITE_ENABLE_MICROSOFT_LOGIN: z.string().transform((val) => val === 'true').default('true'),
+  VITE_ENABLE_GOOGLE_LOGIN: z.string().transform((val) => val === 'true').default('false'),
+  VITE_ENABLE_MICROSOFT_LOGIN: z.string().transform((val) => val === 'true').default('false'),
   VITE_UPLOAD_MAX_MB: z.string().transform((val) => Number(val) || 10).default('10'),
   VITE_UPLOAD_ALLOWED_TYPES: z.string().default('image/jpeg,image/png,image/webp,application/pdf'),
   VITE_UPLOAD_MAX_CONCURRENT: z.string().transform((val) => Number(val) || 3).default('3'),
@@ -22,11 +22,11 @@ if (!parsed.success) {
 }
 
 export const env = parsed.success ? parsed.data : {
-  VITE_API_URL: 'http://localhost:5000/api',
-  VITE_USE_MOCK: true,
+  VITE_API_URL: 'http://localhost:5000/api/v1',
+  VITE_USE_MOCK: false,
   VITE_ENABLE_PASSWORD_LOGIN: true,
-  VITE_ENABLE_GOOGLE_LOGIN: true,
-  VITE_ENABLE_MICROSOFT_LOGIN: true,
+  VITE_ENABLE_GOOGLE_LOGIN: false,
+  VITE_ENABLE_MICROSOFT_LOGIN: false,
   VITE_UPLOAD_MAX_MB: 10,
   VITE_UPLOAD_ALLOWED_TYPES: 'image/jpeg,image/png,image/webp,application/pdf',
   VITE_UPLOAD_MAX_CONCURRENT: 3,

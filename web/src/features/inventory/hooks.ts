@@ -6,7 +6,7 @@ import {
   adjustStock,
   createProduct,
   fetchMovements,
-} from '../../mocks/db'
+} from '../../shared/api/inventory'
 
 export function useProducts(tenantId: string, opts?: { search?: string; category?: string; status?: string }) {
   const filters = {
@@ -32,8 +32,7 @@ export function useProduct(tenantId: string, productId: string) {
 export function useProductMovements(tenantId: string, productId: string) {
   return useQuery({
     queryKey: queryKeys.productMovements(tenantId, productId),
-    queryFn: () => fetchMovements(tenantId, {}),
-    select: (data) => data.filter((m) => m.productId === productId),
+    queryFn: () => fetchMovements(tenantId, {}, productId),
     enabled: !!tenantId && !!productId,
   })
 }

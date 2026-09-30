@@ -117,4 +117,12 @@ public class InventoryController : ControllerBase
         var movements = await _productService.GetMovementsAsync(id, ct);
         return Ok(ApiResponse<List<Domain.Entities.StockMovement>>.Ok(movements));
     }
+
+    [HttpGet("movements")]
+    [AuthorizePermission(Permission.ProductRead)]
+    public async Task<ActionResult<ApiResponse<List<Domain.Entities.StockMovement>>>> GetTenantMovements(CancellationToken ct)
+    {
+        var movements = await _productService.GetTenantMovementsAsync(ct);
+        return Ok(ApiResponse<List<Domain.Entities.StockMovement>>.Ok(movements));
+    }
 }

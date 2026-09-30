@@ -28,7 +28,7 @@ public class JwtService : IJwtService
 
         if (tenantId != null)
         {
-            new Claim("tenantId", tenantId);
+            claims.Add(new Claim("tenantId", tenantId));
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));

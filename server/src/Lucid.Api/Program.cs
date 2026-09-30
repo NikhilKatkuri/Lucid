@@ -1,4 +1,5 @@
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 using Lucid.Api.Middleware;
 using Lucid.Application.Common.Interfaces;
 using Lucid.Infrastructure.Data;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +45,18 @@ var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<Jw
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                if (string.IsNullOrWhiteSpace(jti)) { context.Fail("Token identifier missing"); return; }
+                var db = context.HttpContext.RequestServices.GetRequiredService<MongoDbContext>();
+                var revoked = await db.GetCollection<Lucid.Domain.Entities.RevokedToken>("revokedTokens")
+                    .Find(t => t.Jti == jti && t.ExpiresAt > DateTime.UtcNow).AnyAsync(context.HttpContext.RequestAborted);
+                if (revoked) context.Fail("Token revoked");
+            }
+        };
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -63,9 +77,9 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:3000", "http://localhost:5173" })
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -113,8 +127,11 @@ app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseAuthorization();
 
 // Swagger
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Health checks
 app.MapHealthChecks("/health/live");

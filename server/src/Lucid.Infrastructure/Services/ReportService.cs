@@ -83,7 +83,8 @@ public class ReportService : IReportService
         var tenants = await tenantService.GetByOrganizationAsync(_tenantContext.OrganizationId, ct);
 
         var productCollection = _dbContext.GetCollection<Product>("products");
-        var allProducts = await productCollection.Find(p => p.TenantId == _tenantContext.OrganizationId).ToListAsync(ct);
+        var tenantIds = tenants.Select(t => t.Id).ToList();
+        var allProducts = await productCollection.Find(p => tenantIds.Contains(p.TenantId) && !p.IsArchived).ToListAsync(ct);
 
         var tenantSummaries = new List<TenantSummary>();
         foreach (var tenant in tenants)

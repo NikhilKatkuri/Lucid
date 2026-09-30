@@ -7,6 +7,9 @@ import {
   mockVerifyCode,
 } from './api'
 import type { MockUser, RegisterInput } from './api'
+import { apiLogin, apiRegister, apiLogout } from './api'
+import { env } from '../../shared/config/env'
+import { getAccessToken, setAccessToken, setApiTenant } from '../../shared/api/client'
 
 const SESSION_KEY = 'inventory.mock.session'
 
@@ -17,6 +20,7 @@ const SESSION_KEY = 'inventory.mock.session'
  */
 function readStoredUser(): MockUser | null {
   try {
+    if (!env.VITE_USE_MOCK && !getAccessToken()) return null
     const raw = localStorage.getItem(SESSION_KEY)
     return raw ? (JSON.parse(raw) as MockUser) : null
   } catch {
@@ -54,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const next = await mockLogin(email, password)
+      const next = env.VITE_USE_MOCK ? await mockLogin(email, password) : await apiLogin(email, password)
       startSession(next)
     },
     [startSession],
@@ -62,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(
     async (input: RegisterInput) => {
-      const next = await mockRegister(input)
+      const next = env.VITE_USE_MOCK ? await mockRegister(input) : await apiRegister(input)
       startSession(next)
     },
     [startSession],
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestCode = useCallback(
     async (email?: string) => {
+      if (!env.VITE_USE_MOCK) throw new Error('Email verification is not available on this server yet.')
       await mockRequestCode(email)
       setPendingEmail(email ?? null)
     },
@@ -77,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   const verifyCode = useCallback(async (code: string) => {
+    if (!env.VITE_USE_MOCK) throw new Error('One-time-code sign-in is not available on this server yet.')
     await mockVerifyCode(code)
     // A verified code establishes the session (mock user, memory/local only).
     setUser(
@@ -91,6 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [pendingEmail])
 
   const logout = useCallback(() => {
+    if (!env.VITE_USE_MOCK) void apiLogout()
+    else setAccessToken(null)
+    setApiTenant(null)
     setUser(null)
     setPendingEmail(null)
     try {

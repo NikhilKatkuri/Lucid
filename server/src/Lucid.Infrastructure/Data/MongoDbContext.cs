@@ -7,18 +7,20 @@ namespace Lucid.Infrastructure.Data;
 public class MongoDbContext
 {
     private readonly IMongoDatabase _database;
+    private readonly IMongoClient _client;
     private readonly MongoDbOptions _options;
 
     public MongoDbContext(IOptions<MongoDbOptions> options)
     {
         _options = options.Value;
-        var client = new MongoClient(_options.ConnectionString);
-        _database = client.GetDatabase(_options.DatabaseName);
+        _client = new MongoClient(_options.ConnectionString);
+        _database = _client.GetDatabase(_options.DatabaseName);
     }
 
     public IMongoCollection<T> GetCollection<T>(string name) => _database.GetCollection<T>(name);
 
     public IMongoDatabase Database => _database;
+    public IMongoClient Client => _client;
 
     public async Task CreateIndexesAsync()
     {
@@ -84,5 +86,11 @@ public class MongoDbContext
         await auditCollection.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.AuditEvent>(auditOrgKeys));
         var auditUserKeys = Builders<Domain.Entities.AuditEvent>.IndexKeys.Ascending(ae => ae.UserId).Descending(ae => ae.CreatedAt);
         await auditCollection.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.AuditEvent>(auditUserKeys));
+
+        var revoked = GetCollection<Domain.Entities.RevokedToken>("revokedTokens");
+        await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
+            Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.Jti), new CreateIndexOptions { Unique = true }));
+        await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
+            Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.ExpiresAt), new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }));
     }
 }

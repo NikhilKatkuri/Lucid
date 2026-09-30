@@ -55,7 +55,7 @@ public static class RolePermissions
             Permission.ProductRead, Permission.ProductCreate, Permission.ProductUpdate,
             Permission.ProductArchive, Permission.StockAdjust,
             Permission.FileRead, Permission.FileUpload, Permission.FileDownload,
-            Permission.ReportRead, Permission.OrganizationReport
+            Permission.ReportRead
         },
         TenantRole.Staff => new HashSet<Permission>
         {

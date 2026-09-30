@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router-dom'
 import { Button, TextField, useSnackbar } from '../../shared/components'
 import { Icon } from '../../shared/components'
-import { mockSendResetLink } from './api'
+import { requestPasswordReset } from './api'
 import { forgotPasswordSchema } from './schemas'
 import type { ForgotPasswordInput } from './schemas'
 import './auth.css'
@@ -24,7 +24,7 @@ export function ForgotPasswordPage() {
 
   const onSubmit = async (values: ForgotPasswordInput) => {
     try {
-      await mockSendResetLink(values.email)
+      await requestPasswordReset(values.email)
       setSentTo(values.email)
       show('Reset link sent', { variant: 'success' })
     } catch (error) {

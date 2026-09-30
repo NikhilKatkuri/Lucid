@@ -8,6 +8,9 @@
 /** Demo verification code accepted by the OTP + MFA screens. */
 export const DEMO_CODE = '123456'
 
+import { api, setAccessToken, unwrap } from '../../shared/api/client'
+import { env } from '../../shared/config/env'
+
 export interface MockUser {
   id: string
   name: string
@@ -76,4 +79,34 @@ export async function mockVerifyCode(code: string): Promise<void> {
 export async function mockSendResetLink(email: string): Promise<void> {
   await delay(800)
   if (!EMAIL_RE.test(email)) throw new Error('Enter a valid email address.')
+}
+
+interface AuthPayload {
+  accessToken: string
+  user: { id: string; email: string; displayName: string; emailVerified: boolean }
+}
+
+export async function apiLogin(email: string, password: string): Promise<MockUser> {
+  const { data } = await api.post('/auth/signin', { email, password })
+  const auth = unwrap<AuthPayload>(data)
+  setAccessToken(auth.accessToken)
+  return { id: auth.user.id, name: auth.user.displayName, email: auth.user.email }
+}
+
+export async function apiRegister(input: RegisterInput): Promise<MockUser> {
+  const { data } = await api.post('/auth/signup', {
+    email: input.email, password: input.password, displayName: input.name,
+  })
+  const auth = unwrap<AuthPayload>(data)
+  setAccessToken(auth.accessToken)
+  return { id: auth.user.id, name: auth.user.displayName, email: auth.user.email, organizationName: input.organizationName }
+}
+
+export async function apiLogout(): Promise<void> {
+  try { await api.post('/auth/logout') } finally { setAccessToken(null) }
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  if (env.VITE_USE_MOCK) return mockSendResetLink(email)
+  await api.post('/auth/forgot-password', { email })
 }

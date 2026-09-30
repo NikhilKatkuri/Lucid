@@ -81,6 +81,13 @@ public class TenantResolutionMiddleware
             return;
         }
 
+        var tokenTenantId = context.User.FindFirst("tenantId")?.Value;
+        if (string.IsNullOrEmpty(tokenTenantId) || !string.Equals(tokenTenantId, tenant.Id, StringComparison.Ordinal))
+        {
+            await WriteAsync(context, StatusCodes.Status403Forbidden, "Tenant does not match the authenticated token");
+            return;
+        }
+
         // An explicit X-Tenant-ID naming a real tenant that the caller is not a
         // member of is a cross-tenant attempt, not a missing resource -> 403.
 
@@ -142,12 +149,14 @@ public class TenantResolutionMiddleware
         var collection = _dbContext.GetCollection<Tenant>("tenants");
 
         // Subdomain form
-        var bySlug = await collection
+        var bySlugMatches = await collection
             .Find(t => t.Slug == requested && t.IsActive)
-            .FirstOrDefaultAsync();
+            .Limit(2).ToListAsync();
 
-        if (bySlug != null)
-            return bySlug;
+        if (bySlugMatches.Count == 1)
+            return bySlugMatches[0];
+        if (bySlugMatches.Count > 1)
+            return null;
 
         // X-Tenant-ID form (guid)
         if (Guid.TryParse(requested, out var guid))

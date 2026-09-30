@@ -5,6 +5,7 @@ import type { Tenant } from '../../mocks/tenants'
 import { useAuth } from '../auth/AuthProvider'
 import { useTenant } from './TenantProvider'
 import './tenant.css'
+import { env } from '../../shared/config/env'
 
 export function ChooseTenantPage() {
   const { orgs, setActiveTenant } = useTenant()
@@ -16,11 +17,15 @@ export function ChooseTenantPage() {
   const open = async (tenant: Tenant) => {
     if (openingId) return
     setOpeningId(tenant.tenantId)
-    // Brief pause so the "Opening…" state reads on the card.
-    await new Promise((resolve) => setTimeout(resolve, 350))
-    setActiveTenant(tenant.tenantId)
-    show(`Switched to ${tenant.name}`, { variant: 'success' })
-    navigate('/dashboard', { replace: true })
+    try {
+      if (env.VITE_USE_MOCK) await new Promise((resolve) => setTimeout(resolve, 350))
+      await setActiveTenant(tenant.tenantId)
+      show(`Switched to ${tenant.name}`, { variant: 'success' })
+      navigate('/dashboard', { replace: true })
+    } catch (error) {
+      show(error instanceof Error ? error.message : 'Unable to open this workspace.', { variant: 'error' })
+      setOpeningId(null)
+    }
   }
 
   return (

@@ -173,39 +173,40 @@ public class ProductService : IProductService
         var product = await collection.Find(p => p.Id == productId && p.TenantId == _tenantContext.TenantId && !p.IsArchived).FirstOrDefaultAsync(ct);
         if (product == null)
             throw new InvalidOperationException("Product not found");
-
-        var newQuantity = product.Quantity + request.QuantityDelta;
-        if (newQuantity < 0)
-            throw new InvalidOperationException("Insufficient stock");
-
         var movementCollection = _dbContext.GetCollection<StockMovement>("stockMovements");
-        var movement = new StockMovement
+        using var session = await _dbContext.Client.StartSessionAsync(cancellationToken: ct);
+        StockAdjustmentResult? result = null;
+        await session.WithTransactionAsync(async (s, token) =>
         {
-            TenantId = _tenantContext.TenantId,
-            ProductId = productId,
-            Type = StockMovementType.Adjustment,
-            QuantityDelta = request.QuantityDelta,
-            BeforeQuantity = product.Quantity,
-            AfterQuantity = newQuantity,
-            Reason = request.Reason,
-            PerformedByUserId = _tenantContext.UserId
-        };
+            var guard = Builders<Product>.Filter.Eq(p => p.Id, productId) &
+                        Builders<Product>.Filter.Eq(p => p.TenantId, _tenantContext.TenantId) &
+                        Builders<Product>.Filter.Eq(p => p.IsArchived, false);
+            if (request.QuantityDelta < 0)
+                guard &= Builders<Product>.Filter.Gte(p => p.Quantity, -request.QuantityDelta);
 
-        await movementCollection.InsertOneAsync(movement, cancellationToken: ct);
+            var updated = await collection.FindOneAndUpdateAsync(s, guard,
+                Builders<Product>.Update.Inc(p => p.Quantity, request.QuantityDelta).Set(p => p.UpdatedAt, DateTime.UtcNow),
+                new FindOneAndUpdateOptions<Product> { ReturnDocument = ReturnDocument.Before }, token);
+            if (updated == null)
+            {
+                var stillExists = await collection.Find(s, p => p.Id == productId && p.TenantId == _tenantContext.TenantId && !p.IsArchived).AnyAsync(token);
+                throw new InvalidOperationException(stillExists ? "Insufficient stock" : "Product not found");
+            }
 
-        var update = Builders<Product>.Update
-            .Set(p => p.Quantity, newQuantity)
-            .Set(p => p.UpdatedAt, DateTime.UtcNow);
-        await collection.UpdateOneAsync(p => p.Id == productId && p.TenantId == _tenantContext.TenantId, update, cancellationToken: ct);
-
-        return new StockAdjustmentResult
-        {
-            ProductId = productId,
-            BeforeQuantity = product.Quantity,
-            AfterQuantity = newQuantity,
-            Delta = request.QuantityDelta,
-            MovementId = movement.Id
-        };
+            var after = updated.Quantity + request.QuantityDelta;
+            var movement = new StockMovement
+            {
+                TenantId = _tenantContext.TenantId, ProductId = productId,
+                Type = StockMovementType.Adjustment, QuantityDelta = request.QuantityDelta,
+                BeforeQuantity = updated.Quantity, AfterQuantity = after,
+                Reason = request.Reason, PerformedByUserId = _tenantContext.UserId
+            };
+            await movementCollection.InsertOneAsync(s, movement, cancellationToken: token);
+            result = new StockAdjustmentResult { ProductId = productId, BeforeQuantity = updated.Quantity,
+                AfterQuantity = after, Delta = request.QuantityDelta, MovementId = movement.Id };
+            return true;
+        }, cancellationToken: ct);
+        return result!;
     }
 
     public async Task<List<StockMovement>> GetMovementsAsync(string productId, CancellationToken ct = default)
@@ -214,5 +215,12 @@ public class ProductService : IProductService
         return await collection.Find(m => m.ProductId == productId && m.TenantId == _tenantContext.TenantId)
             .SortByDescending(m => m.CreatedAt)
             .ToListAsync(ct);
+    }
+
+    public async Task<List<StockMovement>> GetTenantMovementsAsync(CancellationToken ct = default)
+    {
+        var collection = _dbContext.GetCollection<StockMovement>("stockMovements");
+        return await collection.Find(m => m.TenantId == _tenantContext.TenantId)
+            .SortByDescending(m => m.CreatedAt).Limit(500).ToListAsync(ct);
     }
 }

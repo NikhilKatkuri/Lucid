@@ -3,7 +3,7 @@
  * IDs are stable; page components must never hard-code tenant ids.
  */
 
-export type TenantType = 'Retail' | 'Warehouse'
+export type TenantType = 'Retail' | 'Warehouse' | 'Branch'
 export type TenantRole = 'Staff' | 'Manager' | 'Viewer' | 'OrgAdmin'
 
 export interface Tenant {

@@ -118,7 +118,8 @@ public class AuthController : ControllerBase
             return Unauthorized(ApiResponse<MeResponse>.Fail("User not found"));
 
         var tenants = await _tenantService.GetByUserAsync(userId, ct);
-        var currentTenant = tenants.FirstOrDefault();
+        var tokenTenantId = User.FindFirst("tenantId")?.Value;
+        var currentTenant = tenants.FirstOrDefault(t => t.Id == tokenTenantId) ?? tenants.FirstOrDefault();
 
         var org = currentTenant != null ? await _organizationService.GetByIdAsync(currentTenant.OrganizationId, ct) : null;
 
@@ -130,6 +131,7 @@ public class AuthController : ControllerBase
             availableTenants.Add(new TenantSummaryDto
             {
                 TenantId = tenant.Id,
+                OrganizationId = tenant.OrganizationId,
                 Name = tenant.Name,
                 Slug = tenant.Slug,
                 Type = tenant.Type,
@@ -178,6 +180,7 @@ public class AuthController : ControllerBase
             result.Add(new TenantSummaryDto
             {
                 TenantId = tenant.Id,
+                OrganizationId = tenant.OrganizationId,
                 Name = tenant.Name,
                 Slug = tenant.Slug,
                 Type = tenant.Type,
@@ -258,7 +261,7 @@ public class AuthController : ControllerBase
         // enumerate which email addresses have accounts.
         // TODO: issue a single-use reset token and email it.
         return Task.FromResult<ActionResult<ApiResponse<object>>>(
-            Ok(ApiResponse<object>.Ok(new { }, "If the email exists, a password reset link has been sent")));
+            StatusCode(StatusCodes.Status501NotImplemented, ApiResponse<object>.Fail("Password reset is not configured")));
     }
 
     [HttpPost("reset-password")]
@@ -268,6 +271,6 @@ public class AuthController : ControllerBase
         // TODO: validate the single-use token, then rotate the password hash
         // and revoke all outstanding tokens for the user.
         return Task.FromResult<ActionResult<ApiResponse<object>>>(
-            Ok(ApiResponse<object>.Ok(new { }, "Password reset successfully")));
+            StatusCode(StatusCodes.Status501NotImplemented, ApiResponse<object>.Fail("Password reset is not configured")));
     }
 }

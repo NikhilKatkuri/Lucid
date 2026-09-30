@@ -4,10 +4,10 @@ services:
       context: .
       dockerfile: src/Lucid.Api/Dockerfile
     ports:
-      - "5000:80"
+      - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - MongoDb__ConnectionString=mongodb://mongo:27017
+      - MongoDb__ConnectionString=mongodb://mongo:27017/?replicaSet=rs0
       - MongoDb__DatabaseName=lucid
       - Redis__ConnectionString=redis:6379
       - S3__Bucket=lucid-files
@@ -15,20 +15,29 @@ services:
       - S3__Endpoint=http://localstack:4566
       - S3__AccessKey=test
       - S3__SecretKey=test
-      - Jwt__Key=your-super-secret-key-min-32-chars-long!!
+      - Jwt__Key=${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in server/.env}
       - Jwt__Issuer=lucid
       - Jwt__Audience=lucid
     depends_on:
-      - mongo
-      - redis
-      - localstack
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      localstack:
+        condition: service_started
 
   mongo:
     image: mongo:7
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] }).ok }"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   redis:
     image: redis:7-alpine
@@ -43,7 +52,7 @@ services:
       - SERVICES=s3
       - DEFAULT_REGION=us-east-1
     volumes:
-      - ./scripts/init-localstack.sh:/etc/localstack/init/ready.d/init-localstack.sh
+      - ./scripts/init-localstack.sh:/etc/localstack/init/ready.d/init-localstack.sh:ro
 
 volumes:
   mongo-data:

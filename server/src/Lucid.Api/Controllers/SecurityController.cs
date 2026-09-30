@@ -5,6 +5,7 @@ using Lucid.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Lucid.Domain.Entities;
 
 namespace Lucid.Api.Controllers;
 
@@ -29,6 +30,10 @@ public class SecurityController : ControllerBase
         [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
         [FromQuery] bool orgWide = false, CancellationToken ct = default)
     {
+        if (page < 1 || pageSize < 1 || pageSize > 100)
+            return BadRequest(ApiResponse<object>.Fail("page must be positive and pageSize must be between 1 and 100"));
+        if (_tenantContext.Role != TenantRole.Manager && !await IsOrgAdminAsync(ct)) return Forbid();
+        if (orgWide && !await IsOrgAdminAsync(ct)) return Forbid();
         var collection = _dbContext.GetCollection<Domain.Entities.AuditEvent>("auditEvents");
 
         // orgWide surfaces attempts against sibling tenants in the same org,
@@ -57,16 +62,17 @@ public class SecurityController : ControllerBase
     [HttpPost("simulations/cross-tenant")]
     public async Task<ActionResult<ApiResponse<object>>> SimulateCrossTenant([FromBody] SimulateCrossTenantRequest request, CancellationToken ct)
     {
-        // This endpoint performs a genuine authorization attempt
-        // It does NOT bypass real security controls
+        if (_tenantContext.Role != TenantRole.Manager && !await IsOrgAdminAsync(ct)) return Forbid();
+        // Report a simulated access decision without exposing tenant existence.
 
         var targetTenant = await _dbContext.GetCollection<Domain.Entities.Tenant>("tenants")
             .Find(t => t.Id == request.TargetTenantId).FirstOrDefaultAsync(ct);
 
-        if (targetTenant == null)
+        var isOrgAdmin = await IsOrgAdminAsync(ct);
+        if (targetTenant == null || (targetTenant.OrganizationId != _tenantContext.OrganizationId && !isOrgAdmin))
         {
-            await _auditService.RecordAsync(AuditAction.CrossTenantAttempt, "Tenant", request.TargetTenantId, AuditResult.Blocked, "Target tenant not found", ct);
-            return Ok(ApiResponse<object>.Ok(new { blocked = true, status = 404, reason = "Target tenant not found" }));
+            await _auditService.RecordAsync(AuditAction.CrossTenantAttempt, "Tenant", request.TargetTenantId, AuditResult.Blocked, "Target unavailable", ct);
+            return Ok(ApiResponse<object>.Ok(new { blocked = true, status = 403, reason = "Access denied" }));
         }
 
         var membership = await _dbContext.GetCollection<Domain.Entities.TenantMembership>("tenantMemberships")
@@ -75,12 +81,16 @@ public class SecurityController : ControllerBase
         if (membership == null)
         {
             await _auditService.RecordAsync(AuditAction.CrossTenantAttempt, "Tenant", request.TargetTenantId, AuditResult.Blocked, "User is not authorized for target tenant", ct);
-            return Ok(ApiResponse<object>.Ok(new { blocked = true, status = 403, reason = "User is not authorized for target tenant" }));
+            return Ok(ApiResponse<object>.Ok(new { blocked = true, status = 403, reason = "Access denied" }));
         }
 
         await _auditService.RecordAsync(AuditAction.CrossTenantAttempt, "Tenant", request.TargetTenantId, AuditResult.Success, "User has access to target tenant", ct);
         return Ok(ApiResponse<object>.Ok(new { blocked = false, status = 200, reason = "User has access to target tenant" }));
     }
+
+    private Task<bool> IsOrgAdminAsync(CancellationToken ct) => _dbContext.GetCollection<OrganizationMembership>("organizationMemberships")
+        .Find(m => m.OrganizationId == _tenantContext.OrganizationId && m.UserId == _tenantContext.UserId && m.Role == OrganizationRole.OrgAdmin)
+        .AnyAsync(ct);
 }
 
 public class SimulateCrossTenantRequest

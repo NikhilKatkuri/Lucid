@@ -6,6 +6,7 @@ using Lucid.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using Lucid.Domain.Enums;
 
 namespace Lucid.Api.Controllers;
 
@@ -23,11 +24,13 @@ public class DevController : ControllerBase
 {
     private readonly MongoDbContext _dbContext;
     private readonly ITenantContext _tenantContext;
+    private readonly IWebHostEnvironment _environment;
 
-    public DevController(MongoDbContext dbContext, ITenantContext tenantContext)
+    public DevController(MongoDbContext dbContext, ITenantContext tenantContext, IWebHostEnvironment environment)
     {
         _dbContext = dbContext;
         _tenantContext = tenantContext;
+        _environment = environment;
     }
 
     /// <summary>
@@ -38,6 +41,11 @@ public class DevController : ControllerBase
         [FromBody] CreateSiblingTenantRequest request,
         CancellationToken ct)
     {
+        if (!_environment.IsDevelopment()) return NotFound();
+        var isOrgAdmin = await _dbContext.GetCollection<OrganizationMembership>("organizationMemberships")
+            .Find(m => m.OrganizationId == _tenantContext.OrganizationId && m.UserId == _tenantContext.UserId && m.Role == OrganizationRole.OrgAdmin)
+            .AnyAsync(ct);
+        if (!isOrgAdmin) return Forbid();
         if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Slug))
             return BadRequest(ApiResponse<object>.Fail("name and slug are required"));
 
