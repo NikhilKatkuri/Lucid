@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Lucid.Api.Middleware;
@@ -7,6 +8,7 @@ using Lucid.Infrastructure.Options;
 using Lucid.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;

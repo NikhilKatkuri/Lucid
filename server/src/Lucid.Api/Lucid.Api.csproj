@@ -10,7 +10,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.31" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Enables `dotnet user-secrets`, which stores Mongo/JWT credentials in a
+         per-user location outside the repository. Only this GUID is committed. -->
+    <UserSecretsId>lucid-api-2f9c1d84</UserSecretsId>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lucid.Domain\Lucid.Domain.csproj" />
