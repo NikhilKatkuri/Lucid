@@ -26,6 +26,7 @@ export interface Product {
   price: number
   supplierCost: number
   imageInitial: string
+  imageUrl?: string
   createdAt: string
   updatedAt: string
 }
@@ -463,11 +464,20 @@ export async function createProduct(tenantId: string, data: Omit<Product, 'id' |
     id: `prod_${Date.now()}`,
     tenantId,
     imageInitial: data.name[0].toUpperCase(),
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop', // Mock placeholder image for demo
     createdAt: new Date().toISOString().split('T')[0],
     updatedAt: new Date().toISOString().split('T')[0],
   }
   PRODUCTS.push(newProduct)
   return newProduct
+}
+
+export async function deleteProduct(tenantId: string, productId: string): Promise<void> {
+  await delay(500)
+  const index = PRODUCTS.findIndex((p) => p.tenantId === tenantId && p.id === productId)
+  if (index !== -1) {
+    PRODUCTS.splice(index, 1)
+  }
 }
 
 export async function fetchMovements(tenantId: string, opts?: { search?: string; type?: string }): Promise<Movement[]> {

@@ -6,6 +6,7 @@ import {
   adjustStock,
   createProduct,
   fetchMovements,
+  deleteProduct,
 } from '../../mocks/db'
 
 export function useProducts(tenantId: string, opts?: { search?: string; category?: string; status?: string }) {
@@ -65,6 +66,17 @@ export function useCreateProduct(tenantId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: Parameters<typeof createProduct>[1]) => createProduct(tenantId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.products(tenantId) })
+      qc.invalidateQueries({ queryKey: queryKeys.dashboard(tenantId) })
+    },
+  })
+}
+
+export function useDeleteProduct(tenantId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (productId: string) => deleteProduct(tenantId, productId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.products(tenantId) })
       qc.invalidateQueries({ queryKey: queryKeys.dashboard(tenantId) })

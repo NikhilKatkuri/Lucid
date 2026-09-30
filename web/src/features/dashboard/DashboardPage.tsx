@@ -652,7 +652,13 @@ export function DashboardPage() {
                     <tr key={prod.id} className="inventory-row">
                       <td>
                         <div className="product-cell">
-                          <div className="product-avatar">{prod.imageInitial}</div>
+                          <div className="product-avatar">
+                            {prod.imageUrl ? (
+                              <img src={prod.imageUrl} alt={prod.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                            ) : (
+                              prod.imageInitial
+                            )}
+                          </div>
                           <span className="product-name">{prod.name}</span>
                         </div>
                       </td>
@@ -726,7 +732,13 @@ export function DashboardPage() {
                       <tr key={prod.id} className="inventory-row">
                         <td>
                           <div className="product-cell">
-                            <div className="product-avatar">{prod.imageInitial}</div>
+                            <div className="product-avatar">
+                              {prod.imageUrl ? (
+                                <img src={prod.imageUrl} alt={prod.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                              ) : (
+                                prod.imageInitial
+                              )}
+                            </div>
                             <span className="product-name">{prod.name}</span>
                           </div>
                         </td>

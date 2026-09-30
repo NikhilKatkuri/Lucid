@@ -472,7 +472,7 @@
 }
 
 .dialog-container--large {
-  max-width: 640px;
+  max-width: 760px;
 }
 
 @keyframes scale-in {
@@ -484,7 +484,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 20px 16px;
+  padding: 24px 28px 16px;
   border-bottom: 1px solid var(--sys-outline-variant);
   color: var(--sys-primary);
 }
@@ -498,11 +498,11 @@
 }
 
 .dialog-body {
-  padding: 20px;
+  padding: 24px 28px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .dialog-product-name {
@@ -523,7 +523,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 12px 20px 20px;
+  padding: 16px 28px 24px;
   border-top: 1px solid var(--sys-outline-variant);
 }
 

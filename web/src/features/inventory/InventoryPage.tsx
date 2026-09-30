@@ -254,7 +254,13 @@ export function InventoryPage() {
                 >
                   <td>
                     <div className="product-cell">
-                      <div className="product-avatar">{product.imageInitial}</div>
+                      <div className="product-avatar">
+                        {product.imageUrl ? (
+                          <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                        ) : (
+                          product.imageInitial
+                        )}
+                      </div>
                       <span className="product-name">{product.name}</span>
                     </div>
                   </td>

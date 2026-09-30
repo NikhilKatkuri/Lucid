@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Product } from './types'
 import { StatusChip } from './StatusChip'
 import { StockAdjustDialog } from './StockAdjustDialog'
-import { useProductMovements } from './hooks'
+import { useProductMovements, useDeleteProduct } from './hooks'
 import { Icon } from '../../shared/components'
 import { formatCurrency, formatDate, formatDateTime } from '../../shared/utils/format'
 import { maskSupplierCost } from '../../shared/utils/mask'
@@ -30,6 +30,14 @@ export function ProductSheet({ tenantId, product, onClose }: ProductSheetProps) 
   const canAdjust = usePermission('product.adjust')
 
   const { data: movements, isLoading: movLoading } = useProductMovements(tenantId, product.id)
+  const { mutateAsync: deleteProd, isPending: isDeleting } = useDeleteProduct(tenantId)
+
+  const handleDelete = async () => {
+    if (confirm(`Are you sure you want to delete ${product.name}? This action cannot be undone.`)) {
+      await deleteProd(product.id)
+      onClose()
+    }
+  }
 
   return (
     <>
@@ -37,7 +45,13 @@ export function ProductSheet({ tenantId, product, onClose }: ProductSheetProps) 
       <aside className="side-sheet" role="dialog" aria-modal="true" aria-label={product.name}>
         {/* Header */}
         <div className="side-sheet-header">
-          <div className="side-sheet-avatar">{product.imageInitial}</div>
+          <div className="side-sheet-avatar">
+            {product.imageUrl ? (
+              <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+            ) : (
+              product.imageInitial
+            )}
+          </div>
           <div className="side-sheet-title-group">
             <h2 className="side-sheet-title">{product.name}</h2>
             <code className="side-sheet-sku">{product.sku}</code>
@@ -48,14 +62,20 @@ export function ProductSheet({ tenantId, product, onClose }: ProductSheetProps) 
         </div>
 
         {/* Status + Actions */}
-        <div className="side-sheet-actions">
+        <div className="side-sheet-actions" style={{ flexWrap: 'wrap' }}>
           <StatusChip quantity={product.quantity} reorderLevel={product.reorderLevel} />
-          {canAdjust && (
-            <button className="btn btn--tonal btn--sm" onClick={() => setShowAdjust(true)}>
-              <Icon name="tune" size={16} />
-              Adjust Stock
+          <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+            {canAdjust && (
+              <button className="btn btn--tonal btn--sm" onClick={() => setShowAdjust(true)}>
+                <Icon name="tune" size={16} />
+                Adjust Stock
+              </button>
+            )}
+            <button className="btn btn--outlined btn--sm" onClick={handleDelete} disabled={isDeleting} style={{ color: 'var(--sys-error)', borderColor: 'var(--sys-error-container)' }}>
+              <Icon name="delete" size={16} />
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
-          )}
+          </div>
         </div>
 
         {/* Tabs */}
