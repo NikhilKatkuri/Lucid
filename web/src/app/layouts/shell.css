@@ -106,7 +106,7 @@
 }
 
 .shell__menu-btn {
-  display: none;
+  display: inline-grid;
 }
 .shell__progress {
   border-radius: 0;
@@ -131,7 +131,28 @@
   top: 64px;
   height: calc(100dvh - 64px);
   overflow-y: auto;
+  transition: width 240ms cubic-bezier(0.2, 0, 0, 1), padding 240ms cubic-bezier(0.2, 0, 0, 1);
 }
+.shell__nav.is-closed {
+  width: 72px;
+  padding: 16px 8px;
+}
+.shell__nav.is-closed .shell__nav-text,
+.shell__nav.is-closed .shell__nav-foot-text {
+  display: none;
+}
+.shell__nav.is-closed .shell__nav-item {
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  width: 56px;
+  margin: 0 auto;
+}
+.shell__nav.is-closed .shell__nav-foot {
+  padding: 12px 0;
+  justify-content: center;
+}
+
 .shell__nav-label {
   padding: 4px 16px 8px;
   font-size: 11px;

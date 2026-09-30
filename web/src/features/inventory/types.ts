@@ -12,6 +12,7 @@ export interface Product {
   price: number
   supplierCost: number
   imageInitial: string
+  imageUrl?: string
   version?: number
   createdAt: string
   updatedAt: string

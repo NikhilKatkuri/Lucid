@@ -46,6 +46,8 @@ function AddProductModal({ tenantId, onClose }: { tenantId: string; onClose: () 
     defaultValues: { quantity: 0, reorderLevel: 5, price: 0, supplierCost: 0 },
   })
 
+  const [imageError, setImageError] = useState('')
+
   const onSubmit = async (data: CreateFormValues) => {
     await mutateAsync({
       name: data.name,
@@ -60,13 +62,24 @@ function AddProductModal({ tenantId, onClose }: { tenantId: string; onClose: () 
     onClose()
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    setImageError('')
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setImageError('Image must be less than 2MB')
+        e.target.value = ''
+      }
+    }
+  }
+
   return (
     <div className="dialog-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="dialog-container dialog-container--large" role="dialog" aria-modal="true">
         <div className="dialog-header">
           <Icon name="add_box" size={24} />
           <h2 className="dialog-title">Add New Product</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="close" size={20} /></button>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="close" size={20} /></button>
         </div>
         <form id="dash-add-product-form" onSubmit={handleSubmit(onSubmit)}>
           <div className="dialog-body">
@@ -88,6 +101,11 @@ function AddProductModal({ tenantId, onClose }: { tenantId: string; onClose: () 
                   {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
                 {errors.category && <span className="field-error">{errors.category.message}</span>}
+              </div>
+              <div className="field-group">
+                <label className="field-label" htmlFor="dash-p-image">Product Image (Max 2MB)</label>
+                <input id="dash-p-image" type="file" accept="image/jpeg,image/png,image/webp" className={`text-field ${imageError ? 'text-field--error' : ''}`} onChange={handleImageChange} />
+                {imageError && <span className="field-error">{imageError}</span>}
               </div>
               <div className="field-group">
                 <label className="field-label" htmlFor="dash-p-qty">Initial Quantity</label>
@@ -284,6 +302,14 @@ export function DashboardPage() {
               Add Product
             </button>
           )}
+          <button className="btn btn--tonal" onClick={() => {
+            // Mock for new location creation
+            const name = prompt("Enter new location name (e.g., Delhi Hub):");
+            if (name) alert(`Location "${name}" creation queued. This will be available in the next sync.`);
+          }}>
+            <Icon name="domain_add" size={18} />
+            New Location
+          </button>
           {canAdjust && (
             <button className="btn btn--tonal" onClick={() => setAdjustTarget({})}>
               <Icon name="tune" size={18} />
