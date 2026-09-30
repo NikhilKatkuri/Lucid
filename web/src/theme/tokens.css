@@ -1,0 +1,151 @@
+/* ============================================================
+   tokens.css — ALL --sys-* color tokens (copied from DESIGN.md)
+   Rule: components may only use colors via var(--sys-*).
+   ============================================================ */
+:root {
+  /* Base */
+  --sys-background: #fff;
+  --sys-on-background: #1f1f1f;
+  --sys-scrim: #000;
+  --sys-shadow: #000;
+
+  /* Error */
+  --sys-error: #b3261e;
+  --sys-on-error: #fff;
+  --sys-error-container: #f9dedc;
+  --sys-on-error-container: #8c1d18;
+
+  /* Inverse */
+  --sys-inverse-on-surface: #f2f2f2;
+  --sys-inverse-primary: #a8c7fa;
+  --sys-inverse-surface: #303030;
+
+  /* Primary */
+  --sys-primary: #0b57d0;
+  --sys-on-primary: #fff;
+  --sys-primary-container: #d3e3fd;
+  --sys-on-primary-container: #0842a0;
+  --sys-primary-fixed: #d3e3fd;
+  --sys-primary-fixed-dim: #a8c7fa;
+  --sys-on-primary-fixed: #041e49;
+  --sys-on-primary-fixed-variant: #0842a0;
+
+  /* Secondary */
+  --sys-secondary: #00639b;
+  --sys-on-secondary: #fff;
+  --sys-secondary-container: #c2e7ff;
+  --sys-on-secondary-container: #004a77;
+  --sys-secondary-fixed: #c2e7ff;
+  --sys-secondary-fixed-dim: #7fcfff;
+  --sys-on-secondary-fixed: #001d35;
+  --sys-on-secondary-fixed-variant: #004a77;
+
+  /* Tertiary */
+  --sys-tertiary: #0b57d0;
+  --sys-on-tertiary: #fff;
+  --sys-tertiary-container: #d3e3fd;
+  --sys-on-tertiary-container: #0842a0;
+  --sys-tertiary-fixed: #d3e3fd;
+  --sys-tertiary-fixed-dim: #a8c7fa;
+  --sys-on-tertiary-fixed: #041e49;
+  --sys-on-tertiary-fixed-variant: #0842a0;
+
+  /* Surface */
+  --sys-surface: #fff;
+  --sys-on-surface: #1f1f1f;
+  --sys-surface-variant: #e1e3e1;
+  --sys-on-surface-variant: #444746;
+  --sys-surface-bright: #fff;
+  --sys-surface-dim: #d3dbe5;
+  --sys-surface-tint: #6991d6;
+  --sys-surface-container-lowest: #fff;
+  --sys-surface-container-low: #f8fafd;
+  --sys-surface-container: #f0f4f9;
+  --sys-surface-container-high: #e9eef6;
+  --sys-surface-container-highest: #dde3ea;
+
+  /* Outline */
+  --sys-outline: #747775;
+  --sys-outline-variant: #c4c7c5;
+
+  /* Semantic: status */
+  --sys-info: #1157ce;
+  --sys-on-info: #fff;
+  --sys-info-container: #d0e4ff;
+  --sys-on-info-container: #04409f;
+
+  --sys-success: #006c35;
+  --sys-on-success: #fff;
+  --sys-success-container: #beefbb;
+  --sys-on-success-container: #00522c;
+
+  --sys-warning: #8f4e06;
+  --sys-on-warning: #fff;
+  --sys-warning-container: #ffe07c;
+  --sys-on-warning-container: #6d3a01;
+
+  /* Links */
+  --sys-link: #1157ce;
+  --sys-link-hover: #04409f;
+  --sys-link-visited: #7438d2;
+
+  /* Accent palette (charts, tenant badges, categories) */
+  --sys-blue: #1157ce;
+  --sys-on-blue: #fff;
+  --sys-blue-container: #d0e4ff;
+  --sys-on-blue-container: #04409f;
+  --sys-red: #b3251e;
+  --sys-on-red: #fff;
+  --sys-red-container: #ffdadc;
+  --sys-on-red-container: #8a1a16;
+  --sys-yellow: #8f4e06;
+  --sys-on-yellow: #fff;
+  --sys-yellow-container: #ffe07c;
+  --sys-on-yellow-container: #6d3a01;
+  --sys-green: #006c35;
+  --sys-on-green: #fff;
+  --sys-green-container: #beefbb;
+  --sys-on-green-container: #00522c;
+  --sys-orange: #9a4600;
+  --sys-on-orange: #fff;
+  --sys-orange-container: #ffdcc3;
+  --sys-on-orange-container: #753403;
+  --sys-pink: #b60d6e;
+  --sys-on-pink: #fff;
+  --sys-pink-container: #ffd8ef;
+  --sys-on-pink-container: #8d0053;
+  --sys-purple: #7438d2;
+  --sys-on-purple: #fff;
+  --sys-purple-container: #eedcfe;
+  --sys-on-purple-container: #5629a4;
+  --sys-cyan: #00687c;
+  --sys-on-cyan: #fff;
+  --sys-cyan-container: #acedff;
+  --sys-on-cyan-container: #004e5d;
+  --sys-grey: #5e5e5e;
+  --sys-on-grey: #fff;
+  --sys-grey-container: #e3e3e3;
+  --sys-on-grey-container: #474747;
+
+  /* Neutral */
+  --sys-neutral-variant20: #2d312f;
+  --sys-neutral10: #1f1f1f;
+
+  /* Accent aliases (used by feature CSS) */
+  --accent-green-container: var(--sys-green-container);
+  --accent-green-on-container: var(--sys-on-green-container);
+  --accent-orange-container: var(--sys-orange-container);
+  --accent-orange-on-container: var(--sys-on-orange-container);
+  --accent-purple-container: var(--sys-purple-container);
+  --accent-purple-on-container: var(--sys-on-purple-container);
+  --accent-cyan-container: var(--sys-cyan-container);
+  --accent-cyan-on-container: var(--sys-on-cyan-container);
+  --accent-blue-container: var(--sys-blue-container);
+  --accent-blue-on-container: var(--sys-on-blue-container);
+
+  /* Elevation shadows */
+  --elevation-0: none;
+  --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --elevation-2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.10);
+  --elevation-3: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10);
+}

@@ -1,0 +1,51 @@
+/* ============================================================
+   shape-elevation.css — corner radius, elevation, spacing, motion
+   ============================================================ */
+:root {
+  /* Shape */
+  --shape-xs: 4px;
+  --shape-sm: 8px;
+  --shape-md: 12px;
+  --shape-lg: 16px;
+  --shape-xl: 28px;
+  --shape-full: 999px;
+
+  /* M3 aliases (used by components and features) */
+  --shape-extra-small: var(--shape-xs);
+  --shape-small: var(--shape-sm);
+  --shape-medium: var(--shape-md);
+  --shape-large: var(--shape-lg);
+  --shape-extra-large: var(--shape-xl);
+
+  /* Elevation — tonal first, shadows only where floating */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --elevation-3: 0 4px 8px 3px rgb(0 0 0 / 0.15),
+    0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04),
+    0 1px 1px rgb(15 23 42 / 0.02);
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Motion */
+  --motion-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-duration: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
