@@ -1,0 +1,82 @@
+/* ============================================================
+   typography.css — Google Sans brand stack + Material 3 type scale
+   ============================================================ */
+:root {
+  --font-brand: 'Google Sans', 'Google Sans Text', 'Product Sans', Roboto,
+    'Segoe UI', Arial, sans-serif;
+  --font-mono: 'Google Sans Code', 'Roboto Mono', ui-monospace, Consolas,
+    monospace;
+}
+
+body {
+  font-family: var(--font-brand);
+  color: var(--sys-on-surface);
+  background: var(--sys-background);
+}
+
+/* Type scale (role → size / line / weight) */
+.t-display-sm {
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.t-headline-md {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.t-headline-sm {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+.t-title-lg {
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 400;
+}
+.t-title-md {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+.t-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+.t-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+.t-label-lg {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.t-label-md {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+.t-label-sm {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+/* Technical identifiers */
+.t-mono {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+/* Numbers, SKUs, quantities */
+.t-num,
+table td,
+table th {
+  font-variant-numeric: tabular-nums;
+}
