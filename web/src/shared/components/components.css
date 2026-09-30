@@ -1,0 +1,734 @@
+/* ============================================================
+   components.css — shared Material 3 component styles
+   Colors: var(--sys-*) only. State layers come from base.css.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Button
+   ------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  min-width: 64px;
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: var(--shape-full);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--motion-duration) var(--motion-standard),
+    border-color var(--motion-duration) var(--motion-standard),
+    box-shadow var(--motion-duration) var(--motion-standard),
+    color var(--motion-duration) var(--motion-standard);
+}
+.btn:hover {
+  text-decoration: none;
+}
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+.btn:disabled::after {
+  opacity: 0 !important;
+}
+.btn--lg {
+  height: 48px;
+  padding: 0 28px;
+  font-size: 15px;
+}
+.btn--full {
+  width: 100%;
+}
+.btn__label {
+  display: inline-block;
+}
+
+.btn--filled {
+  background: var(--sys-primary);
+  color: var(--sys-on-primary);
+}
+.btn--filled:hover {
+  box-shadow: var(--elevation-1);
+}
+
+.btn--tonal {
+  background: var(--sys-secondary-container);
+  color: var(--sys-on-secondary-container);
+}
+
+.btn--outlined {
+  background: transparent;
+  border-color: var(--sys-outline-variant);
+  color: var(--sys-primary);
+}
+.btn--outlined:hover {
+  border-color: var(--sys-outline);
+}
+
+.btn--text {
+  background: transparent;
+  color: var(--sys-primary);
+  padding: 0 12px;
+}
+
+.btn--destructive {
+  background: var(--sys-error);
+  color: var(--sys-on-error);
+}
+
+/* ------------------------------------------------------------
+   Icon button (48px touch target)
+   ------------------------------------------------------------ */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--shape-full);
+  background: transparent;
+  color: var(--sys-on-surface-variant);
+  transition: background-color var(--motion-duration) var(--motion-standard);
+}
+.icon-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.icon-btn--tonal {
+  background: var(--sys-surface-container-high);
+  color: var(--sys-on-surface);
+}
+.icon-btn--filled {
+  background: var(--sys-primary);
+  color: var(--sys-on-primary);
+}
+
+/* ------------------------------------------------------------
+   Text field / Select (outlined, 56px)
+   ------------------------------------------------------------ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.field__label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--sys-on-surface-variant);
+  padding-left: 2px;
+}
+.field__control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 56px;
+  padding: 0 4px 0 0;
+  background: var(--sys-surface);
+  border: 1px solid var(--sys-outline-variant);
+  border-radius: var(--shape-md);
+  transition: border-color var(--motion-duration) var(--motion-standard),
+    box-shadow var(--motion-duration) var(--motion-standard);
+}
+.field__control:hover {
+  border-color: var(--sys-outline);
+}
+.field__control:focus-within {
+  border-color: var(--sys-primary);
+  box-shadow: inset 0 0 0 1px var(--sys-primary);
+}
+.field__control--error,
+.field__control--error:hover,
+.field__control--error:focus-within {
+  border-color: var(--sys-error);
+  box-shadow: inset 0 0 0 1px var(--sys-error);
+}
+.field__lead-icon {
+  margin-left: 16px;
+  color: var(--sys-on-surface-variant);
+}
+.field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 16px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--sys-on-surface);
+}
+.field__control:has(.field__lead-icon) .field__input {
+  padding-left: 12px;
+}
+.field__input::placeholder {
+  color: var(--sys-on-surface-variant);
+  opacity: 0.75;
+}
+.field__input:focus-visible {
+  outline: none;
+}
+.field__end {
+  display: flex;
+  align-items: center;
+  padding-right: 4px;
+}
+.field__msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sys-on-surface-variant);
+}
+.field__msg--error {
+  color: var(--sys-error);
+}
+
+.select__control {
+  padding-right: 0;
+}
+.select__control select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+  background: transparent;
+}
+.select__chevron {
+  position: absolute;
+  right: 14px;
+  color: var(--sys-on-surface-variant);
+  pointer-events: none;
+}
+.select__control {
+  position: relative;
+}
+
+/* ------------------------------------------------------------
+   Checkbox
+   ------------------------------------------------------------ */
+.checkbox-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  cursor: pointer;
+  user-select: none;
+}
+.checkbox input {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.checkbox__box {
+  position: relative;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--sys-outline);
+  border-radius: 2px;
+  background: transparent;
+  transition: background-color var(--motion-duration) var(--motion-standard),
+    border-color var(--motion-duration) var(--motion-standard);
+}
+.checkbox__box::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--sys-on-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--motion-duration) var(--motion-standard);
+}
+.checkbox:hover .checkbox__box {
+  border-color: var(--sys-on-surface);
+}
+.checkbox input:checked + .checkbox__box {
+  background: var(--sys-primary);
+  border-color: var(--sys-primary);
+}
+.checkbox input:checked + .checkbox__box::after {
+  transform: rotate(45deg) scale(1);
+}
+.checkbox input:focus-visible + .checkbox__box {
+  outline: 2px solid var(--sys-primary);
+  outline-offset: 2px;
+}
+.checkbox input:disabled + .checkbox__box {
+  opacity: 0.38;
+}
+.checkbox input:disabled ~ .checkbox__label {
+  opacity: 0.5;
+}
+.checkbox__label {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--sys-on-surface);
+}
+
+/* ------------------------------------------------------------
+   Card
+   ------------------------------------------------------------ */
+.card {
+  background: var(--sys-surface-container-lowest);
+  border: 1px solid var(--sys-outline-variant);
+  border-radius: var(--shape-md);
+  box-shadow: var(--shadow-card);
+  min-width: 0;
+}
+.card--pad-none {
+  padding: 0;
+}
+.card--pad-md {
+  padding: 20px;
+}
+.card--pad-lg {
+  padding: 24px;
+}
+.card--interactive {
+  transition: box-shadow var(--motion-duration) var(--motion-standard),
+    border-color var(--motion-duration) var(--motion-standard);
+}
+.card--interactive:hover {
+  box-shadow: var(--elevation-1);
+  border-color: var(--sys-outline);
+}
+
+/* ------------------------------------------------------------
+   Dialog
+   ------------------------------------------------------------ */
+.dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--sys-scrim) 32%, transparent);
+  animation: overlay-in var(--motion-duration) var(--motion-standard);
+}
+.dialog {
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  background: var(--sys-surface-container-high);
+  border-radius: var(--shape-xl);
+  box-shadow: var(--elevation-3);
+  padding: 24px;
+  animation: dialog-in var(--motion-duration) var(--motion-standard);
+}
+.dialog:focus {
+  outline: none;
+}
+.dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.dialog__title {
+  color: var(--sys-on-surface);
+}
+.dialog__desc {
+  margin-top: 6px;
+  color: var(--sys-on-surface-variant);
+}
+.dialog__body {
+  color: var(--sys-on-surface);
+}
+.dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* ------------------------------------------------------------
+   Snackbar
+   ------------------------------------------------------------ */
+.snackbar-host {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.snackbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 344px;
+  max-width: 568px;
+  padding: 8px 8px 8px 16px;
+  background: var(--sys-inverse-surface);
+  color: var(--sys-inverse-on-surface);
+  border-radius: var(--shape-sm);
+  box-shadow: var(--elevation-3);
+  animation: snack-in var(--motion-duration) var(--motion-standard);
+}
+.snackbar--success .ms-icon {
+  color: var(--sys-success-container);
+}
+.snackbar--error .ms-icon {
+  color: var(--sys-error-container);
+}
+.snackbar__msg {
+  flex: 1;
+  font-size: 14px;
+  line-height: 20px;
+}
+.snackbar__action {
+  border: 0;
+  background: transparent;
+  color: var(--sys-inverse-primary);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--shape-full);
+}
+.snackbar__action:hover {
+  background: color-mix(in srgb, var(--sys-inverse-primary) 12%, transparent);
+}
+.snackbar__close {
+  width: 36px;
+  height: 36px;
+  color: var(--sys-inverse-on-surface);
+}
+
+/* ------------------------------------------------------------
+   Banner
+   ------------------------------------------------------------ */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--shape-md);
+}
+.banner__icon {
+  margin-top: 2px;
+}
+.banner__content {
+  flex: 1;
+  min-width: 0;
+}
+.banner__title {
+  font-weight: 500;
+}
+.banner__text {
+  margin-top: 2px;
+  opacity: 0.92;
+}
+.banner__action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.banner__dismiss {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 4px;
+  border-radius: var(--shape-full);
+  display: grid;
+  place-items: center;
+}
+.banner--info {
+  background: var(--sys-info-container);
+  color: var(--sys-on-info-container);
+}
+.banner--success {
+  background: var(--sys-success-container);
+  color: var(--sys-on-success-container);
+}
+.banner--warning {
+  background: var(--sys-warning-container);
+  color: var(--sys-on-warning-container);
+}
+.banner--error {
+  background: var(--sys-error-container);
+  color: var(--sys-on-error-container);
+}
+
+/* ------------------------------------------------------------
+   Tabs
+   ------------------------------------------------------------ */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--sys-outline-variant);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px;
+  border: 0;
+  background: transparent;
+  color: var(--sys-on-surface-variant);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--shape-sm) var(--shape-sm) 0 0;
+  white-space: nowrap;
+  transition: color var(--motion-duration) var(--motion-standard),
+    background-color var(--motion-duration) var(--motion-standard);
+}
+.tab:hover {
+  background: color-mix(in srgb, var(--sys-on-surface) 6%, transparent);
+}
+.tab[aria-selected='true'] {
+  color: var(--sys-primary);
+}
+.tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--sys-primary);
+}
+
+/* ------------------------------------------------------------
+   Avatar
+   ------------------------------------------------------------ */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--shape-full);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  flex: none;
+  user-select: none;
+}
+
+/* ------------------------------------------------------------
+   Menu
+   ------------------------------------------------------------ */
+.menu {
+  position: relative;
+  display: inline-block;
+}
+.menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: var(--shape-full);
+}
+.menu__popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  min-width: 240px;
+  padding: 8px;
+  background: var(--sys-surface-container-high);
+  border: 1px solid var(--sys-outline-variant);
+  border-radius: var(--shape-md);
+  box-shadow: var(--elevation-3);
+  z-index: 900;
+  animation: menu-in 150ms var(--motion-standard);
+}
+.menu__popup--end {
+  right: 0;
+}
+.menu__popup--start {
+  left: 0;
+}
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--shape-full);
+  color: var(--sys-on-surface);
+  font-size: 14px;
+  text-align: left;
+}
+.menu__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.menu__icon-spacer {
+  width: 20px;
+  flex: none;
+}
+.menu__group {
+  display: flex;
+  flex-direction: column;
+}
+.menu__header {
+  padding: 10px 14px 6px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sys-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.menu__item--danger {
+  color: var(--sys-error);
+}
+.menu__divider {
+  border: 0;
+  border-top: 1px solid var(--sys-outline-variant);
+  margin: 6px 8px;
+}
+
+/* ------------------------------------------------------------
+   Progress bar (4px)
+   ------------------------------------------------------------ */
+.progress {
+  width: 100%;
+  height: 4px;
+  background: var(--sys-surface-container-highest);
+  border-radius: var(--shape-full);
+  overflow: hidden;
+}
+.progress__bar {
+  height: 100%;
+  background: var(--sys-primary);
+  border-radius: var(--shape-full);
+  transition: width 300ms var(--motion-standard);
+}
+.progress--indeterminate .progress__bar {
+  width: 35%;
+  animation: progress-slide 1.6s var(--motion-standard) infinite;
+}
+
+/* ------------------------------------------------------------
+   Skeleton
+   ------------------------------------------------------------ */
+.skeleton {
+  display: block;
+  background: var(--sys-surface-container-high);
+  border-radius: var(--shape-sm);
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--sys-surface) 70%, transparent),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+/* ------------------------------------------------------------
+   Spinner
+   ------------------------------------------------------------ */
+.spinner {
+  display: inline-block;
+  border-style: solid;
+  border-color: currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex: none;
+}
+
+/* ------------------------------------------------------------
+   Keyframes
+   ------------------------------------------------------------ */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes progress-slide {
+  0% {
+    margin-left: -35%;
+  }
+  100% {
+    margin-left: 100%;
+  }
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes snack-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
