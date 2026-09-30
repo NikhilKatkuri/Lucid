@@ -41,7 +41,21 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
 // JWT Authentication
-var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
+// Secrets are intentionally blank in appsettings.json and must be supplied via
+// environment variables (Jwt__Key) or user-secrets. Validate up front so a
+// missing key fails at startup with a clear message instead of surfacing as an
+// opaque "key length is zero" on the first authenticated request.
+var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+                 ?? new JwtOptions();
+
+if (string.IsNullOrWhiteSpace(jwtOptions.Key) || Encoding.UTF8.GetByteCount(jwtOptions.Key) < 32)
+{
+    throw new InvalidOperationException(
+        "Jwt:Key is missing or shorter than 32 bytes. Provide it without committing it, e.g. " +
+        "$env:Jwt__Key = '<at least 32 characters>'  (or: dotnet user-secrets set \"Jwt:Key\" \"<value>\" in " +
+        "server/src/Lucid.Api).");
+}
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

@@ -87,9 +87,10 @@ public class MongoDbContext
         var auditUserKeys = Builders<Domain.Entities.AuditEvent>.IndexKeys.Ascending(ae => ae.UserId).Descending(ae => ae.CreatedAt);
         await auditCollection.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.AuditEvent>(auditUserKeys));
 
+        // RevokedToken: Jti is the [BsonId], so it is already unique via _id.
+        // Mongo rejects an explicit Unique on an _id index, so only the TTL index
+        // is created here - it lets Mongo purge expired revocations automatically.
         var revoked = GetCollection<Domain.Entities.RevokedToken>("revokedTokens");
-        await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
-            Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.Jti), new CreateIndexOptions { Unique = true }));
         await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
             Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.ExpiresAt), new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }));
     }

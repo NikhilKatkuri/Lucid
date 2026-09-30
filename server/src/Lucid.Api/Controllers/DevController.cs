@@ -1,7 +1,6 @@
 using Lucid.Application.Common;
 using Lucid.Application.Common.Interfaces;
 using Lucid.Domain.Entities;
-using Lucid.Domain.Enums;
 using Lucid.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
