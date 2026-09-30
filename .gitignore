@@ -1,0 +1,43 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+publish/
+artifacts/
+
+# Test
+TestResults/
+coverage/
+
+# Docker
+.docker/
+
+# Runtime logs
+api.log
+api.err.log
+*.log
+token.txt
+tenant.txt
+tenant2.txt
+product.txt
