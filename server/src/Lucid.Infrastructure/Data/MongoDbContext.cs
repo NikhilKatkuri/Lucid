@@ -91,6 +91,8 @@ public class MongoDbContext
         // Mongo rejects an explicit Unique on an _id index, so only the TTL index
         // is created here - it lets Mongo purge expired revocations automatically.
         var revoked = GetCollection<Domain.Entities.RevokedToken>("revokedTokens");
+        // Jti is mapped as [BsonId] (_id), so uniqueness is already enforced by MongoDB.
+        // Creating an explicit unique index on _id is rejected by the server.
         await revoked.Indexes.CreateOneAsync(new CreateIndexModel<Domain.Entities.RevokedToken>(
             Builders<Domain.Entities.RevokedToken>.IndexKeys.Ascending(t => t.ExpiresAt), new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }));
     }

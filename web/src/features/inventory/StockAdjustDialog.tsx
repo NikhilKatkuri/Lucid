@@ -1,8 +1,9 @@
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useAdjustStock } from './hooks'
+import { useAdjustStock, useProducts } from './hooks'
 import { Icon } from '../../shared/components'
 
 const schema = z.object({
@@ -16,9 +17,9 @@ type FormValues = z.infer<typeof schema>
 
 interface StockAdjustDialogProps {
   tenantId: string
-  productId: string
-  productName: string
-  currentQty: number
+  productId?: string
+  productName?: string
+  currentQty?: number
   onClose: () => void
   onSuccess?: () => void
 }
@@ -35,12 +36,20 @@ const REASONS = [
 
 export function StockAdjustDialog({
   tenantId,
-  productId,
-  productName,
-  currentQty,
+  productId: initialProductId,
+  productName: initialProductName,
+  currentQty: initialCurrentQty,
   onClose,
   onSuccess,
 }: StockAdjustDialogProps) {
+  const { data: allProducts } = useProducts(tenantId)
+  const [selectedProdId, setSelectedProdId] = useState<string>(initialProductId ?? allProducts?.[0]?.id ?? '')
+
+  const activeProduct = allProducts?.find((p) => p.id === selectedProdId)
+  const targetId = initialProductId || selectedProdId
+  const targetName = initialProductName || activeProduct?.name || 'Selected Product'
+  const currentQty = initialCurrentQty ?? activeProduct?.quantity ?? 0
+
   const { mutateAsync, isPending } = useAdjustStock(tenantId)
   const {
     register,
@@ -58,11 +67,13 @@ export function StockAdjustDialog({
   const newQty = mode === 'add' ? currentQty + (quantity || 0) : Math.max(0, currentQty - (quantity || 0))
 
   const onSubmit = async (data: FormValues) => {
+    if (!targetId) return
     const delta = data.mode === 'add' ? data.quantity : -data.quantity
-    await mutateAsync({ productId, delta, reason: data.reason, note: data.note ?? '' })
+    await mutateAsync({ productId: targetId, delta, reason: data.reason, note: data.note ?? '' })
     onSuccess?.()
     onClose()
   }
+
 
   return (
     <div className="dialog-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -75,10 +86,31 @@ export function StockAdjustDialog({
           </button>
         </div>
         <div className="dialog-body">
-          <p className="dialog-product-name">{productName}</p>
+          {!initialProductId && allProducts && allProducts.length > 0 ? (
+            <div className="field-group" style={{ marginBottom: '16px' }}>
+              <label className="field-label" htmlFor="select-adjust-product">Select Product *</label>
+              <select
+                id="select-adjust-product"
+                className="select-field"
+                value={selectedProdId}
+                onChange={(e) => setSelectedProdId(e.target.value)}
+              >
+                <option value="">Select a product…</option>
+                {allProducts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.sku}) — Current: {p.quantity} units
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <p className="dialog-product-name">{targetName}</p>
+          )}
+
           <p className="dialog-current-qty">
             Current quantity: <strong>{currentQty}</strong>
           </p>
+
 
           {/* Mode toggle */}
           <div className="adjust-mode-toggle">

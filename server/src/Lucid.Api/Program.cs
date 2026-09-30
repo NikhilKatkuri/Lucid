@@ -26,8 +26,10 @@ builder.Services.Configure<TenantOptions>(builder.Configuration.GetSection(Tenan
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
-builder.Services.AddSingleton<IAuditService, AuditService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+// Scoped: depends on the request-scoped ITenantContext and IHttpContextAccessor
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 // Tenant context (request scoped, populated by TenantResolutionMiddleware)
 builder.Services.AddScoped<ITenantContext, TenantContext>();
