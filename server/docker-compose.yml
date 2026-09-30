@@ -7,7 +7,7 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - MongoDb__ConnectionString=mongodb://mongo:27017/?replicaSet=rs0
+      - MongoDb__ConnectionString=${MONGODB_URI:-mongodb://mongo:27017/?replicaSet=rs0}
       - MongoDb__DatabaseName=lucid
       - Redis__ConnectionString=redis:6379
       - S3__Bucket=lucid-files
