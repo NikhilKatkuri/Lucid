@@ -6,6 +6,51 @@
     'Segoe UI', Arial, sans-serif;
   --font-mono: 'Google Sans Code', 'Roboto Mono', ui-monospace, Consolas,
     monospace;
+
+  /* Type scale tokens — size/weight/line-height */
+  --type-display-large-size: 57px;
+  --type-display-medium-size: 45px;
+  --type-display-small-size: 36px;
+
+  --type-headline-large-size: 32px;
+  --type-headline-large-weight: 400;
+  --type-headline-large-line-height: 40px;
+  --type-headline-medium-size: 28px;
+  --type-headline-medium-weight: 400;
+  --type-headline-medium-line-height: 36px;
+  --type-headline-small-size: 24px;
+  --type-headline-small-weight: 400;
+  --type-headline-small-line-height: 32px;
+
+  --type-title-large-size: 22px;
+  --type-title-large-weight: 400;
+  --type-title-large-line-height: 28px;
+  --type-title-medium-size: 16px;
+  --type-title-medium-weight: 500;
+  --type-title-medium-line-height: 24px;
+  --type-title-small-size: 14px;
+  --type-title-small-weight: 500;
+  --type-title-small-line-height: 20px;
+
+  --type-body-large-size: 16px;
+  --type-body-large-weight: 400;
+  --type-body-large-line-height: 24px;
+  --type-body-medium-size: 14px;
+  --type-body-medium-weight: 400;
+  --type-body-medium-line-height: 20px;
+  --type-body-small-size: 12px;
+  --type-body-small-weight: 400;
+  --type-body-small-line-height: 16px;
+
+  --type-label-large-size: 14px;
+  --type-label-large-weight: 500;
+  --type-label-large-line-height: 20px;
+  --type-label-medium-size: 12px;
+  --type-label-medium-weight: 500;
+  --type-label-medium-line-height: 16px;
+  --type-label-small-size: 11px;
+  --type-label-small-weight: 500;
+  --type-label-small-line-height: 16px;
 }
 
 body {

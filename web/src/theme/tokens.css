@@ -130,4 +130,22 @@
   /* Neutral */
   --sys-neutral-variant20: #2d312f;
   --sys-neutral10: #1f1f1f;
+
+  /* Accent aliases (used by feature CSS) */
+  --accent-green-container: var(--sys-green-container);
+  --accent-green-on-container: var(--sys-on-green-container);
+  --accent-orange-container: var(--sys-orange-container);
+  --accent-orange-on-container: var(--sys-on-orange-container);
+  --accent-purple-container: var(--sys-purple-container);
+  --accent-purple-on-container: var(--sys-on-purple-container);
+  --accent-cyan-container: var(--sys-cyan-container);
+  --accent-cyan-on-container: var(--sys-on-cyan-container);
+  --accent-blue-container: var(--sys-blue-container);
+  --accent-blue-on-container: var(--sys-on-blue-container);
+
+  /* Elevation shadows */
+  --elevation-0: none;
+  --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --elevation-2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.10);
+  --elevation-3: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10);
 }

@@ -8,15 +8,13 @@ import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
 import { OtpPage } from '../features/auth/OtpPage'
 import { MfaPage } from '../features/auth/MfaPage'
 import { ChooseTenantPage } from '../features/tenant/ChooseTenantPage'
-import {
-  DashboardPage,
-  FilesPage,
-  InventoryPage,
-  MembersPage,
-  MovementsPage,
-  SettingsPage,
-  TransfersPage,
-} from '../pages/placeholders'
+import { DashboardPage } from '../features/dashboard/DashboardPage'
+import { InventoryPage } from '../features/inventory/InventoryPage'
+import { TransfersPage } from '../features/transfers/TransfersPage'
+import { MovementsPage } from '../features/movements/MovementsPage'
+import { FilesPage } from '../features/files/FilesPage'
+import { MembersPage } from '../features/members/MembersPage'
+import { SettingsPage } from '../features/settings/SettingsPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 
 export const router = createBrowserRouter([
