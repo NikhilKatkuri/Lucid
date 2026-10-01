@@ -9,6 +9,7 @@ using Lucid.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +17,21 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load `dotnet user-secrets` in every environment, not just Development.
+// The default host only wires this up when ASPNETCORE_ENVIRONMENT=Development,
+// so running the app with no environment set would silently ignore the stored
+// Mongo/JWT credentials and fall back to the localhost placeholder in
+// appsettings.json. The Assembly overload is used deliberately: the (string, bool)
+// overload is not resolvable here.
+var entryAssembly = Assembly.GetEntryAssembly();
+if (entryAssembly is not null &&
+    !string.IsNullOrWhiteSpace(
+        entryAssembly.GetCustomAttribute<UserSecretsIdAttribute>()?.UserSecretsId))
+{
+    UserSecretsConfigurationExtensions.AddUserSecrets(
+        builder.Configuration, entryAssembly, optional: true);
+}
 
 // Options
 builder.Services.Configure<MongoDbOptions>(builder.Configuration.GetSection(MongoDbOptions.SectionName));

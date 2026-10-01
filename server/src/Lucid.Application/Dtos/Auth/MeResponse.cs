@@ -28,4 +28,11 @@ public class TenantSummaryDto
     public TenantType Type { get; set; }
     public TenantRole Role { get; set; }
     public string OrganizationName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// True for the organization's main tenant (ParentTenantId is null). Lets the
+    /// client and tooling identify the primary tenant instead of guessing by
+    /// name or by relying on ordering.
+    /// </summary>
+    public bool IsMainTenant { get; set; }
 }

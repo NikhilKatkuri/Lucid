@@ -87,7 +87,17 @@ public class AuthController : ControllerBase
             return Unauthorized(ApiResponse<AuthResponse>.Fail("Invalid email or password"));
 
         var tenants = await _tenantService.GetByUserAsync(user.Id, ct);
-        var defaultTenant = tenants.FirstOrDefault();
+
+        // Land the user on the organization's main tenant. Every org-level tenant
+        // has ParentTenantId == null (hierarchy depth is 1), so that flag cannot
+        // identify the main one - it is simply the oldest per org. Plain
+        // FirstOrDefault() was non-deterministic because the driver returns
+        // documents in natural order, so signin could bind to a different tenant
+        // on each call.
+        var defaultTenant = tenants
+            .GroupBy(t => t.OrganizationId)
+            .Select(g => g.OrderBy(t => t.CreatedAt).First())
+            .FirstOrDefault();
 
         var token = _jwtService.GenerateAccessToken(user.Id, user.Email, defaultTenant?.Id);
 
@@ -124,6 +134,7 @@ public class AuthController : ControllerBase
         var org = currentTenant != null ? await _organizationService.GetByIdAsync(currentTenant.OrganizationId, ct) : null;
 
         var availableTenants = new List<TenantSummaryDto>();
+        var mainIds = MainTenantIds(tenants);
         foreach (var tenant in tenants)
         {
             var tenantOrg = await _organizationService.GetByIdAsync(tenant.OrganizationId, ct);
@@ -136,7 +147,8 @@ public class AuthController : ControllerBase
                 Slug = tenant.Slug,
                 Type = tenant.Type,
                 Role = membership?.Role ?? TenantRole.Viewer,
-                OrganizationName = tenantOrg?.Name ?? "Unknown"
+                OrganizationName = tenantOrg?.Name ?? "Unknown",
+                IsMainTenant = mainIds.Contains(tenant.Id)
             });
         }
 
@@ -172,6 +184,7 @@ public class AuthController : ControllerBase
 
         var tenants = await _tenantService.GetByUserAsync(userId, ct);
         var result = new List<TenantSummaryDto>();
+        var mainIds = MainTenantIds(tenants);
 
         foreach (var tenant in tenants)
         {
@@ -185,12 +198,24 @@ public class AuthController : ControllerBase
                 Slug = tenant.Slug,
                 Type = tenant.Type,
                 Role = membership?.Role ?? TenantRole.Viewer,
-                OrganizationName = org?.Name ?? "Unknown"
+                OrganizationName = org?.Name ?? "Unknown",
+                IsMainTenant = mainIds.Contains(tenant.Id)
             });
         }
 
         return Ok(ApiResponse<List<TenantSummaryDto>>.Ok(result));
     }
+
+    /// <summary>
+    /// Identifies each organization's main tenant as the oldest one.
+    /// ParentTenantId cannot be used for this: hierarchy depth is 1, so every
+    /// org-level tenant has a null parent.
+    /// </summary>
+    private static HashSet<string> MainTenantIds(IEnumerable<Domain.Entities.Tenant> tenants) =>
+        tenants
+            .GroupBy(t => t.OrganizationId)
+            .Select(g => g.OrderBy(t => t.CreatedAt).First().Id)
+            .ToHashSet();
 
     [HttpPost("switch-tenant")]
     [Authorize]
