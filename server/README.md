@@ -36,22 +36,22 @@ Swagger is only enabled when `ASPNETCORE_ENVIRONMENT=Development`.
 
 ASP.NET Core supports environment variables using double underscores for nested settings.
 
-| Variable | Purpose | Default / local value |
-|---|---|---|
-| `ASPNETCORE_ENVIRONMENT` | Controls Development-only Swagger and dev route | `Development` in Compose |
-| `ASPNETCORE_URLS` | Listening URL when running outside Compose | Set as needed; Compose maps host port 5000 to container port 8080 |
-| `MongoDb__ConnectionString` | MongoDB connection | `mongodb://localhost:27017` locally; Compose uses `MONGODB_URI` or its replica-set default |
-| `MongoDb__DatabaseName` | Database name | `lucid` |
-| `Jwt__Key` | JWT signing secret | Must be set; use a strong secret outside local development |
-| `Jwt__Issuer` / `Jwt__Audience` | JWT validation values | `lucid` / `lucid` |
-| `Jwt__ExpiryMinutes` | Token lifetime setting | `60` minutes |
-| `S3__Bucket` | Image bucket | `lucid-files` |
-| `S3__Region` | AWS region | `us-east-1` |
-| `S3__Endpoint` | Optional S3-compatible endpoint for API-side operations | `http://localstack:4566` in Compose |
-| `S3__PublicEndpoint` | Optional endpoint embedded in URLs opened by the browser | `http://localhost:4566` in Compose |
-| `S3__AccessKey` / `S3__SecretKey` | Explicit S3-compatible credentials; omit in AWS when using an API IAM role | `test` / `test` in Compose |
-| `S3__MaxImageBytes` | Maximum image upload size | 2 MiB |
-| `Cors__AllowedOrigins__0` | Allowed browser origin | Defaults include localhost ports 3000 and 5173 |
+| Variable                          | Purpose                                                                    | Default / local value                                                                      |
+| --------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `ASPNETCORE_ENVIRONMENT`          | Controls Development-only Swagger and dev route                            | `Development` in Compose                                                                   |
+| `ASPNETCORE_URLS`                 | Listening URL when running outside Compose                                 | Set as needed; Compose maps host port 5000 to container port 8080                          |
+| `MongoDb__ConnectionString`       | MongoDB connection                                                         | `mongodb://localhost:27017` locally; Compose uses `MONGODB_URI` or its replica-set default |
+| `MongoDb__DatabaseName`           | Database name                                                              | `lucid`                                                                                    |
+| `Jwt__Key`                        | JWT signing secret                                                         | Must be set; use a strong secret outside local development                                 |
+| `Jwt__Issuer` / `Jwt__Audience`   | JWT validation values                                                      | `lucid` / `lucid`                                                                          |
+| `Jwt__ExpiryMinutes`              | Token lifetime setting                                                     | `60` minutes                                                                               |
+| `S3__Bucket`                      | Image bucket                                                               | `lucid-files`                                                                              |
+| `S3__Region`                      | AWS region                                                                 | `us-east-1`                                                                                |
+| `S3__Endpoint`                    | Optional S3-compatible endpoint for API-side operations                    | `http://localstack:4566` in Compose                                                        |
+| `S3__PublicEndpoint`              | Optional endpoint embedded in URLs opened by the browser                   | `http://localhost:4566` in Compose                                                         |
+| `S3__AccessKey` / `S3__SecretKey` | Explicit S3-compatible credentials; omit in AWS when using an API IAM role | `test` / `test` in Compose                                                                 |
+| `S3__MaxImageBytes`               | Maximum image upload size                                                  | 2 MiB                                                                                      |
+| `Cors__AllowedOrigins__0`         | Allowed browser origin                                                     | Defaults include localhost ports 3000 and 5173                                             |
 
 For AWS S3 permissions and bucket CORS setup, see [S3_SETUP.md](S3_SETUP.md). Never put AWS credentials in frontend environment variables.
 
@@ -91,16 +91,16 @@ All JSON request bodies use `Content-Type: application/json`, except the direct 
 
 ### Auth — `/api/v1/auth`
 
-| Method and path | Auth | Description |
-|---|---|---|
-| `POST /signup` | Public | Create account, organization, default tenant, membership, and access token. Body: `{ "email", "password", "displayName" }`. Password must be 8–128 characters. |
-| `POST /signin` | Public | Sign in. Body: `{ "email", "password" }`. Returns a bearer access token and user. |
-| `GET /me` | Bearer | Return current user, active tenant, and available tenants. |
-| `GET /my-orgs` | Bearer | Return tenant memberships with organization names and roles. |
-| `POST /switch-tenant` | Bearer | Issue a token for a tenant the user belongs to. Body: `{ "tenantId" }`. Use the returned token with the matching `X-Tenant-ID`. |
-| `POST /logout` | Bearer | Revoke the presented token. Client should also discard it. |
-| `POST /forgot-password` | Public | Currently returns `501 Not Implemented`; password reset email flow is not configured. |
-| `POST /reset-password` | Public | Currently returns `501 Not Implemented`; password reset flow is not configured. |
+| Method and path         | Auth   | Description                                                                                                                                                    |
+| ----------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /signup`          | Public | Create account, organization, default tenant, membership, and access token. Body: `{ "email", "password", "displayName" }`. Password must be 8–128 characters. |
+| `POST /signin`          | Public | Sign in. Body: `{ "email", "password" }`. Returns a bearer access token and user.                                                                              |
+| `GET /me`               | Bearer | Return current user, active tenant, and available tenants.                                                                                                     |
+| `GET /my-orgs`          | Bearer | Return tenant memberships with organization names and roles.                                                                                                   |
+| `POST /switch-tenant`   | Bearer | Issue a token for a tenant the user belongs to. Body: `{ "tenantId" }`. Use the returned token with the matching `X-Tenant-ID`.                                |
+| `POST /logout`          | Bearer | Revoke the presented token. Client should also discard it.                                                                                                     |
+| `POST /forgot-password` | Public | Currently returns `501 Not Implemented`; password reset email flow is not configured.                                                                          |
+| `POST /reset-password`  | Public | Currently returns `501 Not Implemented`; password reset flow is not configured.                                                                                |
 
 Sign-up example:
 
@@ -110,21 +110,33 @@ curl -X POST http://localhost:5000/api/v1/auth/signup \
   -d '{"email":"demo@example.com","password":"DemoPassword123","displayName":"Demo User"}'
 ```
 
+### Demo data
+
+Start the API and run the seed script from the repository root to create the
+shared demo account, two tenants, 100 products covering all inventory
+categories and stock states, and sample stock movements:
+
+```powershell
+.\server\seed-demo.ps1
+```
+
+Demo login: `demo@example.com` / `DemoPassword123`.
+
 ### Inventory — `/api/v1/inventory`
 
 All routes require authentication and tenant context. Product endpoints return product documents. Each tenant has isolated products and a unique SKU namespace.
 
-| Method and path | Permission | Description |
-|---|---|---|
-| `POST /products` | `ProductCreate` | Create product. Body fields: `sku`, `name`, `category`, `quantity`, `reorderLevel`, `price`. |
-| `GET /products` | `ProductRead` | Search/list products. Query: `search`, `category`, `stockStatus`, `isArchived`, `sortBy`, `sortDirection`, `page` (default 1), `pageSize` (default 20). |
-| `GET /products/{id}` | `ProductRead` | Read a product. |
-| `PUT /products/{id}` | `ProductUpdate` | Update `name`, `category`, `reorderLevel`, `price`, and optimistic concurrency `version`. |
-| `DELETE /products/{id}` | `ProductArchive` | Archive a product (soft delete). |
-| `POST /products/{id}/restore` | `ProductUpdate` | Restore an archived product. |
-| `POST /products/{id}/adjust` | `StockAdjust` | Adjust stock with a non-zero signed `quantityDelta`, plus `reason` and optional `note`. Decreases that would make stock negative are rejected. |
-| `GET /products/{id}/movements` | `ProductRead` | List stock movements for one product. |
-| `GET /movements` | `ProductRead` | List stock movements for the active tenant. |
+| Method and path                | Permission       | Description                                                                                                                                             |
+| ------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /products`               | `ProductCreate`  | Create product. Body fields: `sku`, `name`, `category`, `quantity`, `reorderLevel`, `price`.                                                            |
+| `GET /products`                | `ProductRead`    | Search/list products. Query: `search`, `category`, `stockStatus`, `isArchived`, `sortBy`, `sortDirection`, `page` (default 1), `pageSize` (default 20). |
+| `GET /products/{id}`           | `ProductRead`    | Read a product.                                                                                                                                         |
+| `PUT /products/{id}`           | `ProductUpdate`  | Update `name`, `category`, `reorderLevel`, `price`, and optimistic concurrency `version`.                                                               |
+| `DELETE /products/{id}`        | `ProductArchive` | Archive a product (soft delete).                                                                                                                        |
+| `POST /products/{id}/restore`  | `ProductUpdate`  | Restore an archived product.                                                                                                                            |
+| `POST /products/{id}/adjust`   | `StockAdjust`    | Adjust stock with a non-zero signed `quantityDelta`, plus `reason` and optional `note`. Decreases that would make stock negative are rejected.          |
+| `GET /products/{id}/movements` | `ProductRead`    | List stock movements for one product.                                                                                                                   |
+| `GET /movements`               | `ProductRead`    | List stock movements for the active tenant.                                                                                                             |
 
 Create product example:
 
@@ -153,12 +165,12 @@ Stock adjustment example:
 
 The API authorizes the upload and creates a tenant-scoped object key. The browser sends the file directly to the returned S3 URL; the file bytes do not pass through the API. Supported formats are JPEG, PNG, and WebP, up to 2 MiB by default.
 
-| Method and path | Permission | Description |
-|---|---|---|
-| `POST /presign` | `FileUpload` | Request upload policy. Body: `{ "fileName", "contentType", "size", "entityId" }`, where `entityId` is an active product ID. Returns `uploadUrl`, S3 form `fields`, `fileId`, `s3Key`, and `expiresAt`. |
-| `POST /complete` | `FileUpload` | Verify the uploaded object's size, content type, and image signature, then attach it to the product. Body: `{ "fileId" }`. |
-| `GET /{id}/download` | `FileDownload` | Return a short-lived `downloadUrl` for an uploaded file. |
-| `GET /?entityId={productId}` | `FileRead` | List uploaded files associated with a product. |
+| Method and path              | Permission     | Description                                                                                                                                                                                            |
+| ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `POST /presign`              | `FileUpload`   | Request upload policy. Body: `{ "fileName", "contentType", "size", "entityId" }`, where `entityId` is an active product ID. Returns `uploadUrl`, S3 form `fields`, `fileId`, `s3Key`, and `expiresAt`. |
+| `POST /complete`             | `FileUpload`   | Verify the uploaded object's size, content type, and image signature, then attach it to the product. Body: `{ "fileId" }`.                                                                             |
+| `GET /{id}/download`         | `FileDownload` | Return a short-lived `downloadUrl` for an uploaded file.                                                                                                                                               |
+| `GET /?entityId={productId}` | `FileRead`     | List uploaded files associated with a product.                                                                                                                                                         |
 
 Browser upload sequence:
 
@@ -172,17 +184,17 @@ The configured S3 bucket must allow browser CORS from the frontend origin. Local
 
 ### Reports — `/api/v1/reports`
 
-| Method and path | Auth / permission | Description |
-|---|---|---|
-| `GET /dashboard` | Bearer + `ReportRead` | Dashboard totals, inventory value, low-stock items, and recent movements for the active tenant. |
-| `GET /organization` | Bearer + organization admin membership | Aggregate dashboard across the active organization’s tenants. |
+| Method and path     | Auth / permission                      | Description                                                                                     |
+| ------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `GET /dashboard`    | Bearer + `ReportRead`                  | Dashboard totals, inventory value, low-stock items, and recent movements for the active tenant. |
+| `GET /organization` | Bearer + organization admin membership | Aggregate dashboard across the active organization’s tenants.                                   |
 
 ### Security and audit — `/api/v1/security`
 
-| Method and path | Auth | Description |
-|---|---|---|
+| Method and path                                | Auth                                          | Description                                                                                                    |
+| ---------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `GET /events?page=1&pageSize=50&orgWide=false` | Bearer + tenant Manager or organization admin | Paginated audit events. `pageSize` is limited to 1–100. `orgWide=true` requires organization admin membership. |
-| `POST /simulations/cross-tenant` | Bearer + tenant Manager or organization admin | Simulate an access decision and record the attempt. Body: `{ "targetTenantId", "operation" }`. |
+| `POST /simulations/cross-tenant`               | Bearer + tenant Manager or organization admin | Simulate an access decision and record the attempt. Body: `{ "targetTenantId", "operation" }`.                 |
 
 ### Development helper — `/api/v1/dev`
 
@@ -190,9 +202,9 @@ The configured S3 bucket must allow browser CORS from the frontend origin. Local
 
 ### Health
 
-| Method and path | Description |
-|---|---|
-| `GET /health/live` | Liveness endpoint. |
+| Method and path     | Description                                                                                               |
+| ------------------- | --------------------------------------------------------------------------------------------------------- |
+| `GET /health/live`  | Liveness endpoint.                                                                                        |
 | `GET /health/ready` | Readiness endpoint. Currently uses the registered health checks and does not probe MongoDB, Redis, or S3. |
 
 ## Roles and permissions
